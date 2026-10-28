@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample D — Deck · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfcfb; --card:#ffffff; --tint:#f0f6f5;
+  --ink:#111a18; --ink-2:#38443f; --dim:#6d7a75; --faint:#9aa5a1;
+  --line:#e2e8e6; --line-2:#cfd8d5;
+  --teal:#0f766e; --teal-soft:#e2f2ef;
+  --coral:#c2410c; --coral-soft:#fbeae1;
+  --amber:#a16207; --amber-soft:#fbf2df;
+  --disp:"Outfit",sans-serif; --sans:"Manrope",sans-serif; --mono:"Space Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+.badge{position:fixed; right:14px; bottom:14px; z-index:60; font-family:var(--mono); font-size:9px; letter-spacing:.14em; background:var(--ink); color:#fff; padding:6px 10px; border-radius:3px}
+
+.deck{height:100dvh; display:grid; grid-template-rows:auto minmax(0,1fr) auto;}
+
+/* ---------- chrome ---------- */
+.chrome{
+  display:flex; align-items:center; gap:16px; padding:14px clamp(18px,3.4vw,38px);
+  border-bottom:1px solid var(--line);
+}
+.mark{font-family:var(--disp); font-weight:600; font-size:15px; letter-spacing:-.02em; display:flex; align-items:center; gap:9px}
+.mark i{width:8px; height:8px; border-radius:2px; background:var(--teal); display:inline-block}
+.chrome .spacer{flex:1}
+.dots{display:flex; gap:6px}
+.dots button{
+  appearance:none; border:0; padding:0; width:7px; height:7px; border-radius:50%;
+  background:var(--line-2); cursor:pointer; transition:background .2s, width .2s;
+}
+.dots button.on{background:var(--teal); width:22px; border-radius:99px}
+.chrome .kbd{font-family:var(--mono); font-size:9px; color:var(--faint); letter-spacing:.08em}
+
+/* ---------- slides ---------- */
+.stage{position:relative; overflow:hidden}
+.slide{
+  position:absolute; inset:0; padding:clamp(24px,4vw,56px) clamp(18px,3.4vw,38px);
+  display:none; overflow:auto;
+}
+.slide.on{display:block; animation:in .42s cubic-bezier(.2,.8,.2,1) both}
+@keyframes in{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+.slide-inner{max-width:1080px; margin:0 auto; height:100%; display:flex; flex-direction:column; justify-content:center}
+
+.kicker{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--teal); margin:0 0 16px}
+h1{
+  font-family:var(--disp); font-weight:600; font-size:clamp(34px,5.4vw,64px);
+  line-height:1.02; letter-spacing:-.035em; margin:0 0 20px; max-width:22ch;
+}
+h1 em{font-style:normal; color:var(--teal)}
+.lede{font-size:clamp(16px,1.7vw,20px); line-height:1.6; color:var(--ink-2); max-width:60ch; margin:0}
+.hint{margin-top:34px; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--faint); display:flex; align-items:center; gap:10px}
+.hint b{color:var(--ink-2); font-weight:400; border:1px solid var(--line-2); border-radius:4px; padding:2px 7px; font-size:10px}
+
+h2{font-family:var(--disp); font-weight:600; font-size:clamp(22px,2.8vw,32px); letter-spacing:-.03em; line-height:1.1; margin:0 0 8px}
+.sub{font-size:15px; color:var(--dim); margin:0 0 26px}
+
+/* five subsystem tiles */
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:6px}
+.tile{
+  background:var(--card); border:1px solid var(--line); border-radius:12px; padding:15px 16px;
+  display:grid; gap:5px; transition:border-color .2s, transform .2s;
+}
+.tile:hover{border-color:var(--teal); transform:translateY(-2px)}
+.tile .n{font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--faint)}
+.tile .t{font-family:var(--disp); font-weight:600; font-size:15.5px; letter-spacing:-.01em}
+.tile .d{font-size:12.5px; color:var(--dim); line-height:1.5}
+
+/* chain slide */
+.chain{display:grid; gap:10px; margin-top:8px}
+.chain .link{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:14px; align-items:center;
+  background:var(--card); border:1px solid var(--line); border-radius:10px; padding:11px 15px;
+}
+.chain .link.weak{border-color:var(--coral); background:var(--coral-soft)}
+.chain .link .nm{font-family:var(--disp); font-weight:600; font-size:14.5px; min-width:118px}
+.chain .link .bar{height:6px; border-radius:99px; background:var(--tint); overflow:hidden}
+.chain .link .bar i{display:block; height:100%; border-radius:99px; background:var(--teal)}
+.chain .link.weak .bar i{background:var(--coral)}
+.chain .link .sc{font-family:var(--mono); font-size:11px; color:var(--dim)}
+.chain .note{margin:14px 0 0; font-size:14.5px; color:var(--ink-2); max-width:62ch}
+
+/* lab slide */
+.lab{display:grid; grid-template-columns:minmax(0,1fr); gap:26px; height:100%; align-content:center}
+@media(min-width:900px){ .lab{grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr); gap:44px; align-items:center} }
+.lab-left p{font-size:15px; color:var(--ink-2); margin:0 0 12px}
+.lab-left .meta{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-top:20px}
+.panel{background:var(--card); border:1px solid var(--line-2); border-radius:16px; padding:22px 24px; box-shadow:0 2px 4px rgba(17,26,24,.04), 0 22px 44px -28px rgba(17,26,24,.28)}
+.sc{display:grid; gap:14px}
+.sc-item label{display:flex; justify-content:space-between; align-items:baseline; font-size:13.5px; font-weight:600; margin-bottom:3px}
+.sc-item label em{font-style:normal; font-family:var(--mono); font-size:10px; color:var(--faint)}
+.sc-item .h{font-size:11.5px; color:var(--faint); margin:0 0 3px}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:16px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px; border-radius:99px; background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:15px; height:15px; margin-top:-5.5px; border-radius:50%; background:var(--teal); border:2px solid #fff; box-shadow:0 1px 4px rgba(15,118,110,.4)}
+input[type=range]::-moz-range-track{height:4px; background:var(--line-2)}
+input[type=range]::-moz-range-thumb{width:13px; height:13px; border-radius:50%; background:var(--teal); border:2px solid #fff}
+.out{display:flex; align-items:center; gap:16px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
+.out .big{font-family:var(--disp); font-weight:600; font-size:40px; letter-spacing:-.04em; line-height:1; color:var(--teal)}
+.out .of{font-family:var(--mono); font-size:10.5px; color:var(--faint)}
+.out p{margin:0; font-size:13px; line-height:1.55; color:var(--ink-2); flex:1}
+.out p b{color:var(--ink)}
+
+/* closing slide */
+.next{display:inline-flex; align-items:center; gap:16px; text-decoration:none; color:var(--ink); margin-top:8px}
+.next .n{font-family:var(--mono); font-size:11px; color:var(--faint)}
+.next .t{font-family:var(--disp); font-weight:600; font-size:clamp(22px,3vw,34px); letter-spacing:-.03em; border-bottom:2px solid var(--teal); padding-bottom:4px; transition:color .2s}
+.next:hover .t{color:var(--teal)}
+
+/* ---------- footer ---------- */
+.foot{
+  display:flex; align-items:center; gap:14px; padding:12px clamp(18px,3.4vw,38px);
+  border-top:1px solid var(--line);
+}
+.foot .count{font-family:var(--mono); font-size:11px; color:var(--dim)}
+.foot .spacer{flex:1}
+.btn{
+  appearance:none; font-family:var(--sans); font-weight:600; font-size:13px;
+  border:1px solid var(--line-2); background:var(--card); color:var(--ink);
+  border-radius:9px; padding:8px 15px; cursor:pointer; transition:background .15s, border-color .15s, transform .1s;
+}
+.btn:hover{border-color:var(--teal); color:var(--teal)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--ink); border-color:var(--ink); color:#fff}
+.btn.primary:hover{background:#000; color:#fff}
+.btn:disabled{opacity:.35; cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE D · DECK</div>
+
+<div class="deck">
+  <header class="chrome">
+    <div class="mark"><i></i>Harness Engineering</div>
+    <div class="spacer"></div>
+    <div class="dots" id="dots"></div>
+    <div class="spacer"></div>
+    <span class="kbd">← → to move</span>
+  </header>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · title -->
+    <section class="slide on">
+      <div class="slide-inner">
+        <p class="kicker">Chapter 02 · Definition</p>
+        <h1>A prompt file is <em>not</em> a harness.</h1>
+        <p class="lede">People say "harness" and mean "the system prompt I wrote." That is one of five subsystems — the other four are where most reliability comes from.</p>
+        <div class="hint"><b>→</b> step through this chapter in four screens</div>
+      </div>
+    </section>
+
+    <!-- 2 · subsystems -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="kicker">2.1</p>
+        <h2>The five subsystems</h2>
+        <p class="sub">Everything outside the model weights, split by what it is responsible for.</p>
+        <div class="tiles">
+          <div class="tile"><span class="n">01</span><span class="t">Instructions</span><span class="d">Rules, conventions, definition of done. <code>AGENTS.md</code></span></div>
+          <div class="tile"><span class="n">02</span><span class="t">Tools</span><span class="d">What the agent can actually do — shell, tests, linters.</span></div>
+          <div class="tile"><span class="n">03</span><span class="t">Environment</span><span class="d">A runnable, isolated place to work. <code>init.sh</code></span></div>
+          <div class="tile"><span class="n">04</span><span class="t">State</span><span class="d">What is done, why, and what is next. <code>feature_list.json</code></span></div>
+          <div class="tile"><span class="n">05</span><span class="t">Feedback</span><span class="d">Evidence of what actually happened — tests, traces.</span></div>
+          <div class="tile" style="border-style:dashed"><span class="n">NOT A SUBSYSTEM</span><span class="t">The prompt</span><span class="d">One file inside the first tile. Not the harness.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · weakest link -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="kicker">2.2</p>
+        <h2>Why the weakest link wins</h2>
+        <p class="sub">A harness is a chain. This is one team's score, and the chain is as strong as its lowest bar.</p>
+        <div class="chain">
+          <div class="link"><span class="nm">Instructions</span><span class="bar"><i style="width:75%"></i></span><span class="sc">3 / 4</span></div>
+          <div class="link"><span class="nm">Tools</span><span class="bar"><i style="width:50%"></i></span><span class="sc">2 / 4</span></div>
+          <div class="link weak"><span class="nm">Environment</span><span class="bar"><i style="width:25%"></i></span><span class="sc">1 / 4</span></div>
+          <div class="link"><span class="nm">State</span><span class="bar"><i style="width:50%"></i></span><span class="sc">2 / 4</span></div>
+          <div class="link"><span class="nm">Feedback</span><span class="bar"><i style="width:75%"></i></span><span class="sc">3 / 4</span></div>
+        </div>
+        <p class="note">A brilliant instruction file cannot rescue an agent that cannot run the tests. Adding strength anywhere else is wasted until the weakest layer is fixed.</p>
+      </div>
+    </section>
+
+    <!-- 4 · lab -->
+    <section class="slide">
+      <div class="slide-inner">
+        <div class="lab">
+          <div class="lab-left">
+            <p class="kicker">Lab 02</p>
+            <h2>Score your own harness</h2>
+            <p>Rate the repo you use an agent on most often. 0 means it does not exist; 4 means solid and maintained.</p>
+            <p>The verdict is computed from your minimum, not your average — because that is how reliability behaves.</p>
+            <div class="meta">the lab gets the whole stage</div>
+          </div>
+          <div class="panel">
+            <div class="sc" id="sc"></div>
+            <div class="out">
+              <span class="big" id="big">10</span><span class="of">/ 20</span>
+              <p id="vd"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · next -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="kicker">End of chapter</p>
+        <h2 style="margin-bottom:26px">That is one chapter. Ten more, each a handful of screens.</h2>
+        <a class="next" href="#"><span class="n">03</span><span class="t">If it isn't in the repo, it doesn't exist →</span></a>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="foot">
+    <span class="count" id="count">01 / 05</span>
+    <div class="spacer"></div>
+    <button class="btn" id="prev">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  var i=0;
+  dots.innerHTML=slides.map(function(_,k){return '<button aria-label="screen '+(k+1)+'"></button>'}).join('');
+  var dotEls=[].slice.call(dots.children);
+
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i)});
+    dotEls.forEach(function(d,k){d.classList.toggle('on',k===i)});
+    document.getElementById('count').textContent=('0'+(i+1)).slice(-2)+' / 0'+slides.length;
+    document.getElementById('prev').disabled=(i===0);
+    document.getElementById('next').disabled=(i===slides.length-1);
+    slides[i].scrollTop=0;
+  }
+  document.getElementById('prev').addEventListener('click',function(){go(i-1)});
+  document.getElementById('next').addEventListener('click',function(){go(i+1)});
+  dotEls.forEach(function(d,k){d.addEventListener('click',function(){go(k)})});
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(i+1)}
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1)}
+    if(e.key==='Home') go(0);
+    if(e.key==='End') go(slides.length-1);
+  });
+  go(0);
+
+  /* scorecard */
+  var SUBS=[
+    {id:'i',n:'Instructions',h:'AGENTS.md, conventions, done criteria'},
+    {id:'t',n:'Tools',h:'test runner, linters, scripts'},
+    {id:'e',n:'Environment',h:'init.sh, lockfiles, cold-clone start'},
+    {id:'s',n:'State',h:'feature list, progress log, git'},
+    {id:'f',n:'Feedback',h:'tests, e2e, traces, rubric'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML=SUBS.map(function(s){
+    return '<div class="sc-item"><label for="d-'+s.id+'"><span>'+s.n+'</span><em id="dv-'+s.id+'">2 / 4</em></label>'+
+      '<p class="h">'+s.h+'</p><input type="range" id="d-'+s.id+'" min="0" max="4" step="1" value="2"></div>';
+  }).join('');
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('d-'+s.id).value;
+      tot+=v; document.getElementById('dv-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20) vd.innerHTML='<b>Fully harnessed.</b> Now audit — remove one subsystem at a time.';
+    else if(worst.v<=1) vd.innerHTML='<b>Bottleneck: '+worst.s.n.toLowerCase()+'.</b> Everything else you add is wasted until this is fixed.';
+    else if(worst.v===2) vd.innerHTML='<b>Weakest: '+worst.s.n.toLowerCase()+'.</b> Sessions mostly work, then fail without explanation.';
+    else vd.innerHTML='<b>Solid.</b> Weakest is '+worst.s.n.toLowerCase()+'. Next gain is sharper verification.';
+  }
+  host.addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample E — Syllabus · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ffffff; --paper-2:#fafbf9; --tint:#f4f7ee;
+  --ink:#101310; --ink-2:#333a33; --dim:#6a736a; --faint:#9aa29a;
+  --line:#e5e9e2; --line-2:#d3d9ce;
+  --lime:#d8f26b; --lime-soft:#eefad0;
+  --olive:#3f6212; --olive-soft:#eaf3da;
+  --sans:"Instrument Sans",-apple-system,sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
+  --mono:"DM Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:16.5px; line-height:1.66; -webkit-font-smoothing:antialiased}
+.badge{position:fixed; right:16px; bottom:16px; z-index:60; font-family:var(--mono); font-size:9px; letter-spacing:.14em; background:var(--ink); color:#fff; padding:6px 11px; border-radius:3px}
+
+/* ---------- header ---------- */
+.bar{
+  position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:18px;
+  padding:13px clamp(18px,4vw,40px); background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.mark{font-family:var(--sans); font-weight:600; font-size:15.5px; letter-spacing:-.02em; display:flex; align-items:center; gap:9px}
+.mark i{width:16px; height:16px; border-radius:50%; background:var(--lime); display:inline-block; box-shadow:inset 0 0 0 3px var(--paper)}
+.bar .spacer{flex:1}
+.meta{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+.toggle{
+  appearance:none; border:1px solid var(--line-2); background:transparent; cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-2); padding:6px 11px; border-radius:99px;
+}
+.toggle:hover{border-color:var(--olive); color:var(--olive)}
+
+/* ---------- wrap ---------- */
+.wrap{max-width:920px; margin:0 auto; padding:0 clamp(18px,4vw,40px) 90px}
+
+/* ---------- hero ---------- */
+.hero{padding:54px 0 30px}
+h1{
+  font-family:var(--sans); font-weight:600; font-size:clamp(32px,5vw,52px);
+  line-height:1.05; letter-spacing:-.04em; margin:0 0 16px; text-wrap:balance;
+}
+h1 .hl{position:relative; white-space:nowrap}
+h1 .hl::after{
+  content:""; position:absolute; left:-2px; right:-2px; bottom:4px; height:38%;
+  background:var(--lime); z-index:-1;
+}
+.sub{font-size:17.5px; color:var(--ink-2); max-width:58ch; margin:0}
+.legend{
+  display:flex; gap:18px; flex-wrap:wrap; margin-top:22px; padding-top:16px;
+  border-top:1px solid var(--line); font-family:var(--mono); font-size:10px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--faint);
+}
+.legend b{color:var(--ink-2); font-weight:500}
+
+/* ---------- accordion ---------- */
+.list{border-top:1px solid var(--line-2)}
+.row{border-bottom:1px solid var(--line-2)}
+.head{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:16px; align-items:center;
+  width:100%; text-align:left; appearance:none; background:none; border:0; cursor:pointer;
+  padding:19px 4px; font-family:inherit; color:inherit;
+  transition:background .15s;
+}
+.head:hover{background:var(--paper-2)}
+.row.open .head{background:var(--paper-2)}
+.head .num{
+  font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:.06em;
+  width:26px; text-align:right;
+}
+.row.open .head .num{color:var(--olive)}
+.head .ttl{font-family:var(--sans); font-weight:600; font-size:17.5px; letter-spacing:-.02em; line-height:1.3}
+.head .ttl small{display:block; font-weight:400; font-size:13.5px; color:var(--dim); letter-spacing:0; margin-top:2px}
+.head .tag{
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--olive); background:var(--olive-soft); padding:4px 8px; border-radius:4px; white-space:nowrap;
+}
+.head .tag.none{color:var(--faint); background:var(--paper-2); border:1px solid var(--line)}
+.head .chev{
+  width:20px; height:20px; display:grid; place-items:center; color:var(--faint);
+  transition:transform .25s, color .2s;
+}
+.row.open .head .chev{transform:rotate(90deg); color:var(--olive)}
+
+.body{display:grid; grid-template-rows:0fr; transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1)}
+.row.open .body{grid-template-rows:1fr}
+.body > div{overflow:hidden}
+.inner{padding:2px 4px 30px 46px}
+@media(max-width:640px){ .inner{padding-left:4px} .head .tag{display:none} }
+
+.inner p{margin:0 0 15px; font-size:15.5px; color:var(--ink-2)}
+.inner p strong{color:var(--ink)}
+code{font-family:var(--mono); font-size:.84em; background:var(--paper-2); border:1px solid var(--line); border-radius:3px; padding:1px 5px}
+mark{background:var(--lime-soft); color:var(--ink); padding:0 3px; border-radius:2px; box-shadow:inset 0 -8px 0 var(--lime)}
+
+.pull{
+  font-family:var(--serif); font-size:22px; line-height:1.4; color:var(--ink);
+  margin:20px 0; padding-left:18px; border-left:2px solid var(--lime);
+}
+
+/* subsystem list */
+.defs{border-top:1px solid var(--line); margin:18px 0 22px}
+.defs .d{display:grid; grid-template-columns:132px minmax(0,1fr); gap:14px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14.5px}
+.defs .d b{font-weight:600}
+.defs .d span{color:var(--dim)}
+
+/* exercise */
+.ex{
+  margin:24px 0 4px; border:1px solid var(--line-2); border-radius:12px; overflow:hidden;
+  background:var(--paper);
+}
+.ex-head{
+  display:flex; align-items:center; gap:12px; padding:11px 16px; background:var(--tint);
+  border-bottom:1px solid var(--line); font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--olive);
+}
+.ex-head .spacer{flex:1}
+.ex-head span.live{color:var(--faint)}
+.ex-body{display:grid; gap:20px; padding:18px 18px 20px}
+@media(min-width:760px){ .ex-body{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:28px} }
+.ex-body > p{margin:0; font-size:14px; color:var(--dim)}
+.howto{list-style:none; margin:14px 0 0; padding:0; font-size:13px; color:var(--dim); display:grid; gap:7px}
+.howto li{display:grid; grid-template-columns:34px minmax(0,1fr); gap:8px; align-items:baseline}
+.howto b{font-family:var(--mono); font-size:10.5px; color:var(--olive); font-weight:500}
+.fine{margin:14px 0 0!important; font-size:12.5px!important; color:var(--faint)!important; border-top:1px solid var(--line); padding-top:11px}
+.sc{display:grid; gap:12px}
+.sc-item label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; font-weight:600; margin-bottom:2px}
+.sc-item label em{font-style:normal; font-family:var(--mono); font-size:10px; color:var(--faint)}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:16px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px; background:var(--line-2); border-radius:99px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:14px; height:14px; margin-top:-5.5px; border-radius:50%; background:var(--olive); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-track{height:3px; background:var(--line-2)}
+input[type=range]::-moz-range-thumb{width:12px; height:12px; border-radius:50%; background:var(--olive); border:2px solid #fff}
+.res{display:flex; align-items:baseline; gap:8px; margin-top:14px; padding-top:13px; border-top:1px solid var(--line)}
+.res .big{font-family:var(--sans); font-weight:600; font-size:28px; letter-spacing:-.04em; line-height:1}
+.res .of{font-family:var(--mono); font-size:10px; color:var(--faint)}
+.res + p{margin:6px 0 0; font-size:12.5px; line-height:1.5; color:var(--dim)}
+.res + p b{color:var(--ink)}
+
+/* footer of a row */
+.rowfoot{display:flex; align-items:center; gap:14px; margin-top:22px; padding-top:16px; border-top:1px solid var(--line)}
+.rowfoot .lbl{font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint)}
+.rowfoot a{
+  font-size:14px; color:var(--ink); text-decoration:none; font-weight:600;
+  border-bottom:1px solid var(--lime); padding-bottom:1px;
+}
+.rowfoot a:hover{background:var(--lime-soft)}
+
+footer{padding-top:26px; color:var(--faint); font-size:13px; line-height:1.6}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE E · SYLLABUS</div>
+
+<header class="bar">
+  <div class="mark"><i></i>Harness Engineering</div>
+  <div class="spacer"></div>
+  <span class="meta">11 lessons · 9 labs</span>
+  <button class="toggle" id="tgl">Expand all</button>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <h1>The whole course on <span class="hl">one page</span>.</h1>
+    <p class="sub">Open a lesson to read it. One stays open at a time, so you never lose your place and never have to navigate back to a menu.</p>
+    <div class="legend">
+      <span><b>click</b> a row to open</span>
+      <span><b>9</b> interactive labs inside</span>
+      <span><b>no</b> page loads</span>
+    </div>
+  </section>
+
+  <div class="list" id="list">
+
+    <div class="row">
+      <button class="head"><span class="num">01</span><span class="ttl">Why capable agents fail<small>Benchmark scores vs. your repo — and the five ways sessions break.</small></span><span class="tag">lab 01</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>Sonnet 4.5 scored 77.2% on SWE-bench Verified. Then you hand it your actual repo and it confidently ships something broken. The gap has a name: the capability gap.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row open">
+      <button class="head"><span class="num">02</span><span class="ttl">A prompt file is not a harness<small>Five subsystems, and why the weakest one sets your reliability.</small></span><span class="tag">lab 02</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>People say "harness" and mean "the system prompt I wrote." That is one of five subsystems. The other four are where most reliability actually comes from.</p>
+        <p>A new engineer joins your project with no README, no comments, nobody to ask, and CI config buried somewhere. Smart people still struggle. An agent has it worse: it can only see the files you put in front of it and the commands it can run.</p>
+
+        <p class="pull">The repo is the spec. Anything the agent cannot see in the repository does not exist for it.</p>
+
+        <div class="defs">
+          <div class="d"><b>Instructions</b><span>Rules, conventions, definition of done — <code>AGENTS.md</code></span></div>
+          <div class="d"><b>Tools</b><span>What it can actually do — shell, test runner, linters</span></div>
+          <div class="d"><b>Environment</b><span>A runnable, isolated place to work — <code>init.sh</code></span></div>
+          <div class="d"><b>State</b><span>What is done, why, and what is next — <code>feature_list.json</code></span></div>
+          <div class="d"><b>Feedback</b><span>Evidence of what happened — tests, traces, logs</span></div>
+        </div>
+
+        <p><mark>Score each one honestly.</mark> The lowest score is your ceiling, not the average — a harness is a chain, and a brilliant instruction file cannot rescue an agent that cannot run the tests.</p>
+
+        <div class="ex">
+          <div class="ex-head"><span>Exercise 02.1</span><span class="spacer"></span><span class="live">interactive</span></div>
+          <div class="ex-body">
+            <p>Rate the repo you use an agent on most often. 0 means it does not exist; 4 means solid and maintained.</p>
+            <ul class="howto">
+              <li><b>0–1</b> — absent or aspirational. This is your ceiling.</li>
+              <li><b>2</b> — exists, but nobody verifies it still works.</li>
+              <li><b>3–4</b> — maintained, and used on every session.</li>
+            </ul>
+            <p class="fine">The readout reports the minimum, not the mean. Average the five and you will always feel fine about a harness that is failing.</p>
+            <div>
+              <div class="sc" id="sc"></div>
+              <div class="res"><span class="big" id="big">10</span><span class="of">/ 20</span></div>
+              <p id="vd"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rowfoot"><span class="lbl">Next</span><a href="#">03 · The repo as source of truth →</a></div>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">03</span><span class="ttl">The repo as source of truth<small>If it isn't in the repo, it doesn't exist. The fresh-session test.</small></span><span class="tag">lab 03</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>An agent has three inputs: the task, the repository, and the output of commands. Slack and Jira are invisible to it.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">04</span><span class="ttl">Instruction architecture<small>Why a 600-line AGENTS.md hurts, and where to put the rule that matters.</small></span><span class="tag">2 labs</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>Context budget, lost in the middle, and the entry-file pattern.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">05</span><span class="ttl">Continuity and initialisation<small>Three sessions, two harnesses, and where the minutes go.</small></span><span class="tag">lab 05</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>State files, the init phase, and context anxiety.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">06</span><span class="ttl">Scope and feature lists<small>WIP = 1, attention as arithmetic, and rows that mean something.</small></span><span class="tag">2 labs</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>Divide the attention budget, then build a feature list the harness can run on.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">07</span><span class="ttl">Verification<small>"Done" is a claim. Evidence is a fact.</small></span><span class="tag">lab 07</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>Lint, tests, end-to-end — and the three defects only the third layer catches.</p>
+      </div></div></div>
+    </div>
+
+    <div class="row">
+      <button class="head"><span class="num">08</span><span class="ttl">Observability and clean exits<small>Traces over vibes, and a handoff grade you can act on.</small></span><span class="tag">lab 08</span><span class="chev">›</span></button>
+      <div class="body"><div><div class="inner">
+        <p>What clean state means, and why drift compounds.</p>
+      </div></div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    Layout E · every lesson on one page, opened in place. No sidebar, no pagination, no page loads — the structure is progressive disclosure instead of navigation.
+  </footer>
+</div>
+
+<script>
+/* accordion: one open at a time */
+(function(){
+  var rows=[].slice.call(document.querySelectorAll('.row'));
+  rows.forEach(function(r){
+    r.querySelector('.head').addEventListener('click',function(){
+      var wasOpen=r.classList.contains('open');
+      rows.forEach(function(x){x.classList.remove('open')});
+      if(!wasOpen) r.classList.add('open');
+    });
+  });
+  document.getElementById('tgl').addEventListener('click',function(){
+    var all=rows.every(function(r){return r.classList.contains('open')});
+    rows.forEach(function(r){r.classList.toggle('open',!all)});
+    this.textContent=all?'Expand all':'Collapse all';
+  });
+})();
+
+/* scorecard */
+(function(){
+  var SUBS=[
+    {id:'i',n:'Instructions'},{id:'t',n:'Tools'},{id:'e',n:'Environment'},
+    {id:'s',n:'State'},{id:'f',n:'Feedback'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML=SUBS.map(function(s){
+    return '<div class="sc-item"><label for="e-'+s.id+'"><span>'+s.n+'</span><em id="ev-'+s.id+'">2 / 4</em></label>'+
+      '<input type="range" id="e-'+s.id+'" min="0" max="4" step="1" value="2"></div>';
+  }).join('');
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('e-'+s.id).value;
+      tot+=v; document.getElementById('ev-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20) vd.innerHTML='<b>Fully harnessed.</b> Now audit — remove one subsystem at a time.';
+    else if(worst.v<=1) vd.innerHTML='<b>Bottleneck: '+worst.s.n.toLowerCase()+'.</b> Adding anything else is wasted until this is fixed.';
+    else if(worst.v===2) vd.innerHTML='<b>Weakest: '+worst.s.n.toLowerCase()+'.</b> Sessions mostly work, then fail without explanation.';
+    else vd.innerHTML='<b>Solid.</b> Weakest is '+worst.s.n.toLowerCase()+'. Next gain is sharper verification.';
+  }
+  host.addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>

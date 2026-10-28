@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample F — Spec sheet · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f6f2; --paper:#ffffff; --tint:#efefe9;
+  --ink:#17171a; --ink-2:#3a3a3e; --dim:#6b6b70; --faint:#9a9a9c;
+  --rule:#dcdcd4; --rule-2:#c6c6bc;
+  --ox:#8c2f39; --ox-soft:#f6e8ea;
+  --slate:#2c4a63; --slate-soft:#e7eef4;
+  --serif:"Spectral",Georgia,serif;
+  --sans:"Karla",-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--serif); font-size:15.5px; line-height:1.66; -webkit-font-smoothing:antialiased}
+.badge{position:fixed; right:14px; bottom:14px; z-index:60; font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; background:var(--ink); color:#fff; padding:6px 10px; border-radius:2px}
+
+/* ---------- document head ---------- */
+.doc-head{
+  border-bottom:1px solid var(--rule-2); background:var(--paper);
+  padding:0 clamp(16px,3vw,34px);
+}
+.doc-head .in{
+  max-width:1320px; margin:0 auto; display:flex; align-items:center; gap:16px;
+  padding:12px 0; font-family:var(--mono); font-size:9.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--faint);
+}
+.doc-head .ttl{color:var(--ink); font-family:var(--sans); font-weight:700; font-size:12.5px; letter-spacing:.02em; text-transform:none}
+.doc-head .spacer{flex:1}
+.doc-head .tag{border:1px solid var(--rule-2); border-radius:2px; padding:2px 6px; color:var(--ink-2)}
+.doc-head .tag.ox{color:var(--ox); border-color:var(--ox)}
+
+/* ---------- three column shell ---------- */
+.shell{
+  max-width:1320px; margin:0 auto; display:grid; gap:0;
+  grid-template-columns:minmax(0,1fr);
+  padding:0 clamp(16px,3vw,34px);
+}
+/* side columns hidden until there is room for them */
+.idx,.rail{display:none; font-family:var(--sans)}
+@media(min-width:1080px){
+  .shell{grid-template-columns:176px minmax(0,660px) minmax(0,1fr); column-gap:44px}
+  .idx,.rail{display:block}
+}
+
+/* left index */
+.idx{padding:34px 0 60px; position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto}
+.idx h4{font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin:0 0 10px; font-weight:400}
+.idx ol{list-style:none; margin:0; padding:0; border-top:1px solid var(--rule)}
+.idx li{border-bottom:1px solid var(--rule)}
+.idx a{
+  display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; align-items:baseline;
+  padding:8px 0; text-decoration:none; color:var(--ink-2); font-size:12.5px; line-height:1.35;
+  transition:color .15s;
+}
+.idx a:hover{color:var(--ox)}
+.idx a .n{font-family:var(--mono); font-size:9px; color:var(--faint)}
+.idx li.on a{color:var(--ink); font-weight:600}
+.idx li.on a .n{color:var(--ox)}
+.idx .foot{margin-top:18px; font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--faint); line-height:1.7}
+
+/* center column */
+.doc{padding:34px 0 90px; min-width:0}
+.sechead{border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:22px}
+.sechead .meta{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--ox); margin-bottom:8px}
+.sechead .meta span{color:var(--faint)}
+h1{
+  font-family:var(--serif); font-weight:500; font-size:clamp(27px,3.4vw,38px);
+  line-height:1.12; letter-spacing:-.015em; margin:0;
+}
+.abstract{
+  font-size:15px; color:var(--ink-2); margin:16px 0 0; padding-left:12px;
+  border-left:2px solid var(--rule-2);
+}
+
+h2{
+  font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink); margin:34px 0 10px;
+  display:grid; grid-template-columns:52px minmax(0,1fr); gap:10px; align-items:baseline;
+}
+h2 .sn{font-family:var(--mono); font-size:10px; font-weight:400; letter-spacing:.06em; color:var(--ox)}
+p{margin:0 0 12px}
+p a{color:var(--ox); text-decoration:none; border-bottom:1px solid var(--ox-soft)}
+code{font-family:var(--mono); font-size:.82em; background:var(--paper); border:1px solid var(--rule); padding:0 4px; border-radius:2px}
+sup{font-family:var(--mono); font-size:8.5px; color:var(--ox); vertical-align:super; line-height:0}
+
+/* table */
+.tbl{width:100%; border-collapse:collapse; margin:12px 0 18px; font-family:var(--sans); font-size:12.5px}
+.tbl th{
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--faint); font-weight:400; text-align:left; padding:0 10px 6px 0;
+  border-bottom:1px solid var(--ink);
+}
+.tbl td{padding:8px 10px 8px 0; border-bottom:1px solid var(--rule); vertical-align:top; line-height:1.45}
+.tbl tr:last-child td{border-bottom:1px solid var(--rule-2)}
+.tbl td:first-child{font-weight:700; white-space:nowrap}
+.tbl td code{font-size:10.5px}
+
+/* note / callout as spec annotation */
+.ann{
+  background:var(--paper); border:1px solid var(--rule); border-left:3px solid var(--slate);
+  padding:11px 14px; margin:16px 0; font-size:13.5px; color:var(--ink-2);
+  font-family:var(--sans); line-height:1.55;
+}
+.ann b{font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); display:block; margin-bottom:3px}
+.ann.warn{border-left-color:var(--ox)}
+.ann.warn b{color:var(--ox)}
+
+/* exercise block */
+.ex{margin:26px 0 0; border:1px solid var(--rule-2); background:var(--paper)}
+.ex-head{
+  display:flex; align-items:center; gap:10px; padding:8px 13px; border-bottom:1px solid var(--rule);
+  background:var(--tint); font-family:var(--mono); font-size:8.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-2);
+}
+.ex-head .ox{color:var(--ox)}
+.ex-head .spacer{flex:1}
+.ex-head .live{color:var(--faint)}
+.ex-body{padding:14px 16px 16px}
+.ex-body .lead{font-family:var(--sans); font-size:12.5px; color:var(--dim); margin:0 0 12px; line-height:1.55}
+.sc{display:grid; gap:10px}
+.sc-item{display:grid; grid-template-columns:104px minmax(0,1fr) 40px; gap:10px; align-items:center; font-family:var(--sans)}
+.sc-item label{font-size:12px; font-weight:600}
+.sc-item em{font-style:normal; font-family:var(--mono); font-size:9.5px; color:var(--faint); text-align:right}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:14px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:2px; background:var(--rule-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:11px; height:11px; margin-top:-4.5px; border-radius:50%; background:var(--ox); border:2px solid var(--paper); box-shadow:0 0 0 1px var(--ox)}
+input[type=range]::-moz-range-track{height:2px; background:var(--rule-2)}
+input[type=range]::-moz-range-thumb{width:10px; height:10px; border-radius:50%; background:var(--ox); border:2px solid var(--paper)}
+.readout{
+  display:flex; align-items:baseline; gap:10px; margin-top:14px; padding-top:11px;
+  border-top:1px solid var(--rule); font-family:var(--sans);
+}
+.readout .big{font-family:var(--mono); font-size:22px; font-weight:500; letter-spacing:-.02em; color:var(--ox)}
+.readout .of{font-family:var(--mono); font-size:9px; color:var(--faint); letter-spacing:.08em}
+.readout p{margin:0 0 0 auto; font-size:12px; line-height:1.45; color:var(--ink-2); max-width:62%}
+.readout p b{color:var(--ink)}
+
+/* footnotes */
+.notes{margin-top:30px; padding-top:12px; border-top:1px solid var(--ink); font-family:var(--sans); font-size:11.5px; color:var(--dim); line-height:1.6}
+.notes b{font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); display:block; margin-bottom:6px}
+.notes ol{margin:0; padding-left:16px}
+.notes li{margin-bottom:4px}
+
+/* right rail */
+.rail{padding:34px 0 60px; position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto}
+.rail h4{font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin:0 0 9px; font-weight:400}
+.rail .box{border:1px solid var(--rule); background:var(--paper); padding:11px 12px; margin-bottom:18px}
+.rail ul{list-style:none; margin:0; padding:0; font-size:12px}
+.rail li{padding:4px 0; color:var(--dim); display:flex; gap:7px; line-height:1.4}
+.rail li.on{color:var(--ink); font-weight:600}
+.rail li i{font-style:normal; font-family:var(--mono); font-size:9px; color:var(--faint)}
+.rail .kv{display:flex; justify-content:space-between; font-size:11.5px; padding:3px 0; color:var(--dim)}
+.rail .kv b{color:var(--ink); font-weight:600}
+.rail .note{font-size:11.5px; color:var(--dim); line-height:1.6; margin:0}
+
+/* pager */
+.pager{display:flex; justify-content:space-between; gap:14px; margin-top:34px; padding-top:14px; border-top:1px solid var(--rule-2); font-family:var(--sans); font-size:12.5px}
+.pager a{color:var(--ink); text-decoration:none; display:flex; flex-direction:column; gap:2px}
+.pager a:hover{color:var(--ox)}
+.pager small{font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint)}
+.pager a.next{text-align:right; align-items:flex-end}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE F · SPEC SHEET</div>
+
+<div class="doc-head">
+  <div class="in">
+    <span class="ttl">Harness Engineering</span>
+    <span>Reference 1.0</span>
+    <span class="spacer"></span>
+    <span>11 sections</span>
+    <span class="tag">draft</span>
+    <span class="tag ox">9 exercises</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ============ left index ============ -->
+  <nav class="idx">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#"><span class="n">§1</span><span>Why capable agents fail</span></a></li>
+      <li class="on"><a href="#"><span class="n">§2</span><span>What a harness is</span></a></li>
+      <li><a href="#"><span class="n">§3</span><span>Repo as source of truth</span></a></li>
+      <li><a href="#"><span class="n">§4</span><span>Instruction architecture</span></a></li>
+      <li><a href="#"><span class="n">§5</span><span>Continuity and init</span></a></li>
+      <li><a href="#"><span class="n">§6</span><span>Scope and feature lists</span></a></li>
+      <li><a href="#"><span class="n">§7</span><span>Verification</span></a></li>
+      <li><a href="#"><span class="n">§8</span><span>Observability</span></a></li>
+      <li><a href="#"><span class="n">§9</span><span>Loops and graphs</span></a></li>
+      <li><a href="#"><span class="n">§10</span><span>Harness kit</span></a></li>
+    </ol>
+    <div class="foot">MIT · based on<br>learn-harness-<br>engineering</div>
+  </nav>
+
+  <!-- ============ centre ============ -->
+  <main class="doc">
+    <div class="sechead">
+      <div class="meta"><span>Section §2 · Definition · 2 exercises</span></div>
+      <h1>A prompt file is not a harness</h1>
+      <p class="abstract">A harness is the engineering infrastructure outside the model weights. It has five subsystems. The prompt is one artefact inside the first of them, and treating it as the whole thing is the most common reason agent sessions fail.</p>
+    </div>
+
+    <h2><span class="sn">2.1</span>Subsystem inventory</h2>
+    <p>Every harness decomposes into the same five parts. Each has a distinct responsibility and a distinct way of failing; when a session goes wrong, the first job is to name which one broke.<sup>1</sup></p>
+
+    <table class="tbl">
+      <thead><tr><th>Subsystem</th><th>Responsibility</th><th>Artefacts</th></tr></thead>
+      <tbody>
+        <tr><td>Instructions</td><td>Rules, conventions, definition of done</td><td><code>AGENTS.md</code>, <code>docs/</code></td></tr>
+        <tr><td>Tools</td><td>What the agent can actually do</td><td>shell, test runner, linters</td></tr>
+        <tr><td>Environment</td><td>A runnable, isolated place to work</td><td><code>init.sh</code>, lockfiles</td></tr>
+        <tr><td>State</td><td>What is done, why, and what is next</td><td><code>feature_list.json</code></td></tr>
+        <tr><td>Feedback</td><td>Evidence of what actually happened</td><td>tests, traces, logs</td></tr>
+      </tbody>
+    </table>
+
+    <div class="ann">
+      <b>Note 2.1.a — measurement</b>
+      To establish which subsystem is load-bearing today, remove one at a time and re-run an identical task. The largest regression identifies the investment; a removal with no effect identifies something you can delete.
+    </div>
+
+    <h2><span class="sn">2.2</span>Minimum-strength rule</h2>
+    <p>A harness is a chain, not a portfolio. Session reliability is bounded by the weakest subsystem, so improving any other layer produces no observable gain until the weakest one is repaired. A strong instruction file cannot rescue an agent that cannot execute the test suite; a complete test suite does nothing if the agent never learns its own state.</p>
+    <p>Score each subsystem from 0 (absent) to 4 (maintained). The governing figure is the minimum, not the mean.<sup>2</sup></p>
+
+    <div class="ann warn">
+      <b>Common error 2.2.a</b>
+      Teams average their scores, see a healthy 3.2, and conclude the harness is fine. The single 1 in environment is the only number that predicts their next failed session.
+    </div>
+
+    <h2><span class="sn">2.3</span>Worked example</h2>
+    <p>A four-person team scores 3 / 2 / 1 / 2 / 3 across the five subsystems: 11 of 20, a mean of 2.2. Two of the three sessions in the following week ended with unverified work, and both failed in the environment layer — a cold clone could not install dependencies. The fix was one script, not a rewrite of the instruction file they had spent three weeks expanding.</p>
+
+    <h2><span class="sn">2.4</span>Exercise</h2>
+    <div class="ex">
+      <div class="ex-head"><span class="ox">Exercise 02.1</span><span>score your own harness</span><span class="spacer"></span><span class="live">interactive</span></div>
+      <div class="ex-body">
+        <p class="lead">Rate the repository you use an agent on most often. 0 = absent · 4 = maintained. The readout reports the minimum, per §2.2.</p>
+        <div class="sc" id="sc"></div>
+        <div class="readout">
+          <span class="big" id="big">10</span><span class="of">/ 20 TOTAL</span>
+          <p id="vd"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <b>Notes</b>
+      <ol>
+        <li>Layer naming follows the failure-diagnosis model used throughout: task specification, context provision, execution environment, verification feedback, state management.</li>
+        <li>Anthropic's long-running-agent guidance and OpenAI's harness-engineering note converge on the same conclusion from different directions.</li>
+      </ol>
+    </div>
+
+    <div class="pager">
+      <a href="#"><small>Previous</small>§1 · Why capable agents fail</a>
+      <a href="#" class="next"><small>Next</small>§3 · Repo as source of truth</a>
+    </div>
+  </main>
+
+  <!-- ============ right rail ============ -->
+  <aside class="rail">
+    <h4>On this page</h4>
+    <div class="box">
+      <ul>
+        <li><i>2.1</i>Subsystem inventory</li>
+        <li><i>2.2</i>Minimum-strength rule</li>
+        <li><i>2.3</i>Worked example</li>
+        <li class="on"><i>2.4</i>Exercise</li>
+      </ul>
+    </div>
+    <h4>Status</h4>
+    <div class="box">
+      <div class="kv"><span>Read</span><b>2 of 11</b></div>
+      <div class="kv"><span>Exercises done</span><b>1 of 9</b></div>
+      <div class="kv"><span>Est. time left</span><b>~1h 40m</b></div>
+    </div>
+    <h4>Margin</h4>
+    <div class="box">
+      <p class="note">Numbers in this section are illustrative of the method, not measurements of your repository. The exercise is the measurement.</p>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+(function(){
+  var SUBS=[
+    {id:'i',n:'Instructions'},{id:'t',n:'Tools'},{id:'e',n:'Environment'},
+    {id:'s',n:'State'},{id:'f',n:'Feedback'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML=SUBS.map(function(s){
+    return '<div class="sc-item"><label for="f-'+s.id+'">'+s.n+'</label>'+
+      '<input type="range" id="f-'+s.id+'" min="0" max="4" step="1" value="2">'+
+      '<em id="fv-'+s.id+'">2 / 4</em></div>';
+  }).join('');
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('f-'+s.id).value;
+      tot+=v; document.getElementById('fv-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20) vd.innerHTML='<b>No subsystem below 4.</b> Proceed to the removal audit in Note 2.1.a.';
+    else if(worst.v<=1) vd.innerHTML='<b>Minimum = '+worst.v+' ('+worst.s.n.toLowerCase()+').</b> This is your ceiling. Nothing else you add will show up in session quality.';
+    else if(worst.v===2) vd.innerHTML='<b>Minimum = '+worst.v+' ('+worst.s.n.toLowerCase()+').</b> Sessions mostly succeed, then fail without an attributable cause.';
+    else vd.innerHTML='<b>Minimum = '+worst.v+' ('+worst.s.n.toLowerCase()+').</b> Solid. The next marginal gain is in verification depth.';
+  }
+  host.addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>
