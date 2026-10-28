@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering, Hands-On — Editorial noir</title>
+<meta name="description" content="A hands-on, interactive tutorial on harness engineering: why capable AI coding agents still fail, and how to build the instructions, state, verification and feedback systems that make them reliable.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="themes/noir.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23f6f2ea'/><path d='M8 22V10m0 6h8m0-6v12' stroke='%23c2410c' stroke-width='3' fill='none' stroke-linecap='square'/></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html#/ch-0" style="text-decoration:none"><span class="dot"></span><b>Harness Engineering</b> hands-on</a>
+  <div class="progress-rail"><i id="progressFill"></i></div>
+  <div class="topbar-meta" id="chapterCounter">01 / 11</div>
+</header>
+
+<div class="shell">
+
+  <nav class="sidenav" aria-label="Chapters">
+    <p class="sidenav-title">Chapters</p>
+    <ol id="chapterList">
+      <li><a href="#/ch-0"  data-ch="ch-0"><span class="num">00</span><span>Start here</span></a></li>
+      <li><a href="#/ch-1"  data-ch="ch-1"><span class="num">01</span><span>Why capable agents fail</span></a></li>
+      <li><a href="#/ch-2"  data-ch="ch-2"><span class="num">02</span><span>What a harness is</span></a></li>
+      <li><a href="#/ch-3"  data-ch="ch-3"><span class="num">03</span><span>The repo as source of truth</span></a></li>
+      <li><a href="#/ch-4"  data-ch="ch-4"><span class="num">04</span><span>Instruction architecture</span></a></li>
+      <li><a href="#/ch-5"  data-ch="ch-5"><span class="num">05</span><span>Continuity and init</span></a></li>
+      <li><a href="#/ch-6"  data-ch="ch-6"><span class="num">06</span><span>Scope and feature lists</span></a></li>
+      <li><a href="#/ch-7"  data-ch="ch-7"><span class="num">07</span><span>Verification</span></a></li>
+      <li><a href="#/ch-8"  data-ch="ch-8"><span class="num">08</span><span>Observability and clean exits</span></a></li>
+      <li><a href="#/ch-9"  data-ch="ch-9"><span class="num">09</span><span>Loops and graphs</span></a></li>
+      <li><a href="#/ch-10" data-ch="ch-10"><span class="num">10</span><span>Build your harness kit</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <!-- ============================ CH 0 ============================ -->
+  <section class="chapter" id="ch-0">
+    <p class="eyebrow">An interactive tutorial</p>
+    <h1>Make an AI coding agent actually reliable.</h1>
+    <p class="lede">Your model is not the problem. The environment you run it in is. This tutorial walks through harness engineering — the discipline of designing instructions, state, verification and feedback around an agent — and lets you feel each failure mode with a simulator instead of just reading about it.</p>
+
+    <div class="hero-grid">
+      <div class="stat"><span class="n">11</span><span class="k">chapters</span></div>
+      <div class="stat"><span class="n">9</span><span class="k">interactive labs</span></div>
+      <div class="stat"><span class="n">5</span><span class="k">harness subsystems</span></div>
+      <div class="stat"><span class="n">1</span><span class="k">harness kit generated</span></div>
+    </div>
+
+    <h2>What you will be able to do</h2>
+    <p>By the end you should be able to look at a failing agent session and name the layer that failed — instructions, tools, environment, state or feedback — instead of blaming the model. That single diagnostic habit is most of the skill. Everything else in this tutorial is the machinery for each layer.</p>
+
+    <div class="callout">
+      <span class="tag">Based on</span>
+      <p>The open-source course <a href="https://github.com/walkinglabs/learn-harness-engineering" target="_blank" rel="noopener">Learn Harness Engineering</a> (MIT, ~21k stars), which synthesises OpenAI's <em>Harness engineering</em> and Anthropic's <em>Effective harnesses for long-running agents</em>. This page is an independent interactive treatment of the same ideas — the labs and simulators are original, the theory follows that curriculum.</p>
+    </div>
+
+    <h2>How to use this</h2>
+    <div class="path-list">
+      <a class="path-item" href="#/ch-1"><span class="pi-n">01</span><span><span class="pi-t">Read a chapter, then run its lab</span><span class="pi-d">Each lab is a small simulator. Move the sliders and press the buttons — the numbers change because the model behind them is the point.</span></span><span class="pi-go">&rarr;</span></a>
+      <a class="path-item" href="#/ch-10"><span class="pi-n">10</span><span><span class="pi-t">Leave with a working harness</span><span class="pi-d">The last chapter generates AGENTS.md, feature_list.json, init.sh and a progress log for your own repo.</span></span><span class="pi-go">&rarr;</span></a>
+      <a class="path-item" href="#/ch-2"><span class="pi-n">02</span><span><span class="pi-t">Short on time? Score your own harness first</span><span class="pi-d">Chapter 2 has a five-subsystem scorecard. It tells you which layer to fix before you read anything else.</span></span><span class="pi-go">&rarr;</span></a>
+    </div>
+
+    <p class="small">Progress is stored in your browser only. Nothing is sent anywhere.</p>
+
+    <div class="chapter-nav">
+      <span class="hint">Chapter 0 of 10</span>
+      <button class="btn primary" data-next="ch-1">Begin &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 1 ============================ -->
+  <section class="chapter" id="ch-1">
+    <p class="eyebrow">Chapter 01 &middot; Diagnosis</p>
+    <h1>Strong models don't mean reliable execution.</h1>
+    <p class="lede">Claude Sonnet 4.5 scored 77.2% on SWE-bench Verified in September 2025. Then you hand the same model your actual repo — vague ticket, no tests, conventions that live in a Slack thread — and it confidently ships something broken.</p>
+
+    <p>That gap has a name: the <strong>capability gap</strong>. Benchmarks hand the agent a clean issue description, an existing test suite and a working environment. Real work asks it to invent all three. The model didn't get worse between the benchmark and your repo; the harness did.</p>
+
+    <p>The cleanest evidence comes from Anthropic, who ran the same prompt — "build a 2D retro game editor" — on the same model (Opus 4.5) under two different harnesses:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Run</th><th>Harness</th><th class="num">Time</th><th class="num">Cost</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td>Bare</td><td>Single prompt, no planner, no evaluator</td><td class="num">20 min</td><td class="num">$9</td><td>App opened; entities ignored input</td></tr>
+          <tr><td>Harnessed</td><td>Planner / generator / evaluator split</td><td class="num">6 h</td><td class="num">$200</td><td>Core loop playable; unfinished edges</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Same weights. Different tack. OpenAI's harness engineering write-up is blunter still: in a well-harnessed repository Codex goes from <em>unreliable</em> to <em>reliable</em> — not "a bit better", but a qualitative jump.</p>
+
+    <h2>The five ways sessions actually fail</h2>
+    <p>Almost every bad agent session is one of these. Learn to recognise them and you have a triage list, not a mystery.</p>
+
+    <ul>
+      <li><strong>Vague requirements.</strong> "Add a search feature" — search what, ranked how, paginated? The agent guesses. A wrong guess costs several times more than the sentence that would have prevented it.</li>
+      <li><strong>Unwritten conventions.</strong> Your team is on SQLAlchemy 2.0; every endpoint must pass OAuth 2.0. The agent has never seen that rule, so it cannot comply.</li>
+      <li><strong>Broken environment.</strong> Missing dependencies and version conflicts burn context on <code>pip install</code> errors instead of the task.</li>
+      <li><strong>No verification.</strong> Nothing executable says what "done" means, so the agent uses its own standard: "the code looks fine." Anthropic also observed <em>context anxiety</em> — as the window fills, agents rush, skip verification and pick the easy solution.</li>
+      <li><strong>Cross-session amnesia.</strong> Every new session re-explores the repo and re-litigates decisions. Failure rates spike sharply on tasks longer than about 30 minutes.</li>
+    </ul>
+
+    <div class="callout">
+      <span class="tag">Principle</span>
+      <p>When something fails, don't swap the model first — check the harness. If the same model succeeds on a similar, well-structured task, the weights are fine and the environment is not.</p>
+    </div>
+
+    <h2>Lab 01 — Triage a failed session</h2>
+    <div class="lab" data-lab="lab-1">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>01</span> &middot; Failure triage</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Pick the symptom you have actually seen. Each one maps to a specific harness layer and a specific fix — that mapping is the whole diagnostic method.</p>
+        <div class="chips" id="triageChips">
+          <button class="chip" data-symptom="done">"It said done. It wasn't."</button>
+          <button class="chip" data-symptom="rediscover">"It re-explores the repo every session"</button>
+          <button class="chip" data-symptom="conventions">"It ignores our conventions"</button>
+          <button class="chip" data-symptom="overreach">"It rewrote 12 files at once"</button>
+          <button class="chip" data-symptom="guessing">"It keeps guessing when tests fail"</button>
+        </div>
+        <div class="diag" id="triageOut"></div>
+      </div>
+    </div>
+
+    <h2>The habit to build</h2>
+    <p>Attribute every failure to a layer before you change anything: was the task unclear, was context missing, was the environment broken, was there no verification, or was state lost? Anthropic's own diagnostic loop is exactly this — execute, observe the failure, attribute it to a layer, fix that layer, re-execute. You will find "the model isn't good enough" appearing in your notes less and less.</p>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-0">&larr; Back</button>
+      <span class="hint">Chapter 1 of 10</span>
+      <button class="btn primary" data-next="ch-2">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 2 ============================ -->
+  <section class="chapter" id="ch-2">
+    <p class="eyebrow">Chapter 02 &middot; Definition</p>
+    <h1>A prompt file is not a harness.</h1>
+    <p class="lede">People say "harness" and mean "the system prompt I wrote." That is one of five subsystems. The other four are where most reliability actually comes from.</p>
+
+    <p>The analogy that makes it click: a new engineer joins your project with no README, no comments, nobody to ask, and CI config buried somewhere. Smart people still struggle — they spend their day working out what the project <em>is</em> instead of solving the problem. An agent has it worse: it can only see the files you put in front of it and the commands it can run.</p>
+
+    <h2>The five subsystems</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Subsystem</th><th>What it carries</th><th>Typical artefacts</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Instructions</strong></td><td>Rules, conventions, definition of done</td><td><code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>docs/</code></td></tr>
+          <tr><td><strong>Tools</strong></td><td>What the agent can actually do</td><td>shell, test runner, linters, MCP servers, scripts</td></tr>
+          <tr><td><strong>Environment</strong></td><td>A runnable, isolated place to work</td><td><code>init.sh</code>, lockfiles, containers, git worktrees</td></tr>
+          <tr><td><strong>State</strong></td><td>What is done, why, and what is next</td><td><code>feature_list.json</code>, progress log, git history</td></tr>
+          <tr><td><strong>Feedback</strong></td><td>Evidence of what actually happened</td><td>tests, type checks, e2e runs, traces, logs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Three habits separate a real harness from a prompt dump. <strong>Give a map, not a manual</strong> — <code>AGENTS.md</code> is a directory page around 100 lines long, not an encyclopaedia. <strong>Constrain, don't micromanage</strong> — enforce invariants and let the agent choose the implementation. And <strong>remove one at a time and watch</strong> — delete a subsystem, see how much performance drops, and you learn which parts are actually load-bearing today.</p>
+
+    <div class="callout">
+      <span class="tag">Two anchors</span>
+      <p>OpenAI frames the core principle as "the repo <em>is</em> the spec." Anthropic frames it as state persistence and explicit recovery paths. Different words, same claim: everything outside the model weights decides how much of the model's capability gets realised.</p>
+    </div>
+
+    <h2>Lab 02 — Score your own harness</h2>
+    <div class="lab" data-lab="lab-2">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>02</span> &middot; Five-subsystem scorecard</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Rate the repo you use an agent on most often. 0 = does not exist, 4 = solid and maintained. The verdict is driven by your weakest link, not your average — that is how reliability actually behaves.</p>
+        <div id="scorecard"></div>
+        <div class="score-line">
+          <span class="big" id="sc-score">—</span>
+          <span class="of">/ 20</span>
+          <span class="verdict" id="sc-verdict">Move the sliders to score your harness.</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>Why the weakest link wins</h2>
+    <p>A harness is a chain. A brilliant instruction file cannot rescue an agent that cannot run the tests; a perfect test suite does nothing if the agent never learns what state it is in. That is why the scorecard reports the minimum rather than the mean: your session quality is set by whichever subsystem you have neglected, and adding strength anywhere else is mostly wasted effort until you fix it.</p>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-1">&larr; Back</button>
+      <span class="hint">Chapter 2 of 10</span>
+      <button class="btn primary" data-next="ch-3">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 3 ============================ -->
+  <section class="chapter" id="ch-3">
+    <p class="eyebrow">Chapter 03 &middot; Instructions</p>
+    <h1>If it isn't in the repo, it doesn't exist.</h1>
+    <p class="lede">An agent has three inputs: the task description, the contents of the repository, and the output of commands it runs. Slack, Jira, Confluence and the architecture decision you made on Friday are all invisible to it.</p>
+
+    <p>This is not a "write more documentation" problem. It is a "put the decision where it will be needed" problem. A 50-line <code>ARCHITECTURE.md</code> inside <code>src/api/</code> beats a 500-page Confluence space nobody maintains, because information only helps at the moment it is in front of the reader. Proximity beats length.</p>
+
+    <h2>The fresh-session test</h2>
+    <p>You can measure whether your map is good enough in one move: open a brand-new session, give it nothing but the repository, and see whether it can answer five questions without asking you anything.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Question</th><th>Where the answer must live</th></tr></thead>
+        <tbody>
+          <tr><td>What is this system?</td><td><code>README.md</code> / <code>AGENTS.md</code></td></tr>
+          <tr><td>How is it organised?</td><td><code>ARCHITECTURE.md</code>, module docs</td></tr>
+          <tr><td>How do I run it?</td><td><code>init.sh</code>, <code>Makefile</code>, package scripts</td></tr>
+          <tr><td>How do I verify it?</td><td>test / lint / typecheck commands</td></tr>
+          <tr><td>Where are we now?</td><td><code>feature_list.json</code>, progress log, <code>git log</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Lab 03 — Run the fresh-session test</h2>
+    <div class="lab" data-lab="lab-3">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>03</span> &middot; Fresh-session test</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Answer for your own repo. Be honest about "not sure" — for an agent, "not sure" and "no" are the same thing.</p>
+        <div class="checklist" id="fsList"></div>
+        <div class="score-line">
+          <span class="big" id="fs-score">—</span>
+          <span class="of">/ 5</span>
+          <span class="verdict" id="fs-verdict">Answer the five questions.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="tag">Cost of a miss</span>
+      <p>Every question the agent cannot answer from the repo becomes exploration time at the start of every single session — and exploration is where inconsistent decisions get made. The fix is a file, not a better model.</p>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-2">&larr; Back</button>
+      <span class="hint">Chapter 3 of 10</span>
+      <button class="btn primary" data-next="ch-4">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 4 ============================ -->
+  <section class="chapter" id="ch-4">
+    <p class="eyebrow">Chapter 04 &middot; Instructions</p>
+    <h1>Your 600-line instruction file is hurting the agent.</h1>
+    <p class="lede">It started at 40 lines. Every mistake added a rule. Three months later a simple bug fix means reading deployment notes, six style opinions and a lesson from a WebSocket leak — and the security rule on line 300 gets ignored.</p>
+
+    <p>Four things go wrong at once. <strong>Context budget</strong> disappears: a 600-line file can eat 10–20k tokens, 8–15% of a 128k window, before the agent reads a single source file. <strong>Position matters</strong>: Liu et al. (2023) showed models use information in the middle of a long context far less reliably than information at the start or end. <strong>Priority flattens</strong>: "never use <code>eval()</code>", "prefer functional style" and "watch for that leak" all look identical in a list. And <strong>files only grow</strong>, because deleting a rule feels riskier than adding one.</p>
+
+    <div class="blockquote">
+      <p>The fix is architectural: a short entry file that routes, plus detail that is revealed on demand. 50–200 lines at the root; everything else behind a link the agent follows only when the task needs it.</p>
+    </div>
+
+    <h2>Lab 04a — Spend a context window</h2>
+    <div class="lab" data-lab="lab-4a">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>04a</span> &middot; Context budget simulator</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>A 200,000-token window, a task that needs real source files, and tool output you cannot avoid. Move the sliders and watch what is left for thinking.</p>
+
+        <div class="field">
+          <div class="field-head"><label for="cb-lines">Instruction file length</label><span class="val" id="cb-lines-v">600 lines</span></div>
+          <input type="range" id="cb-lines" min="20" max="600" step="10" value="600">
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="cb-files">Source files the task needs</label><span class="val" id="cb-files-v">24 files</span></div>
+          <input type="range" id="cb-files" min="2" max="60" step="1" value="24">
+        </div>
+        <div class="chips" id="cb-mode">
+          <button class="chip on" data-mode="mono">One giant AGENTS.md</button>
+          <button class="chip" data-mode="routed">Entry file + on-demand docs</button>
+        </div>
+
+        <div class="svg-wrap" style="padding:16px">
+          <div id="cb-bar" style="display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--rule);font-family:var(--font-mono);font-size:10px;color:#fff"></div>
+          <div id="cb-legend" style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-dim)"></div>
+        </div>
+
+        <div id="cb-warn" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <h2>Lab 04b — Where do you put the rule that matters?</h2>
+    <div class="lab" data-lab="lab-4b">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>04b</span> &middot; Position and recall</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Drag your non-negotiable security rule through the instruction file. The curve is the shape of the <em>lost in the middle</em> effect: strong at the edges, weak in the middle. It is illustrative, not a measurement of your model.</p>
+
+        <div class="field">
+          <div class="field-head"><label for="att-pos">Rule position in the file</label><span class="val" id="att-pos-v">line 300 of 600</span></div>
+          <input type="range" id="att-pos" min="1" max="100" step="1" value="50">
+        </div>
+
+        <div class="svg-wrap">
+          <svg id="att-curve" viewBox="0 0 600 190" role="img" aria-label="Attention recall curve across the context window"></svg>
+        </div>
+        <div id="att-verdict" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <h2>The rule of thumb</h2>
+    <p>Keep the entry file under about 200 lines and hold it to hard constraints, a startup workflow, and the definition of done. Push everything else — API conventions, database rules, deployment notes — into topic files the agent opens only when the task calls for them. Then audit quarterly and delete what no longer earns its place.</p>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-3">&larr; Back</button>
+      <span class="hint">Chapter 4 of 10</span>
+      <button class="btn primary" data-next="ch-5">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 5 ============================ -->
+  <section class="chapter" id="ch-5">
+    <p class="eyebrow">Chapter 05 &middot; State</p>
+    <h1>Sessions end. Understanding doesn't have to.</h1>
+    <p class="lede">The agent runs 30 minutes, gets most of a feature done, and runs out of context. The next session remembers none of it: not the decisions, not which files changed, not what the tests said.</p>
+
+    <p>Bigger windows do not fix this. The information an agent produces is not uniformly valuable: intermediate reasoning carries the <em>why</em> — why option A beat option B, why that library, why this shortcut — and the final output only carries the <em>what</em>. Compaction keeps the code and drops the reasoning, so the next session sees the artefact and "optimises" away a decision that was deliberate.</p>
+
+    <p>Worse, agents know when the window is filling. Anthropic describes <em>context anxiety</em>: as the budget tightens, the agent rushes the finish, skips verification and takes the simple path. A harness that never leaves a written handoff guarantees that every session is somebody's first day.</p>
+
+    <h2>What a handoff actually contains</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Artefact</th><th>Answers</th></tr></thead>
+        <tbody>
+          <tr><td><code>feature_list.json</code></td><td>What is done, what is active, what is blocked — with the command that proves it</td></tr>
+          <tr><td><code>progress.md</code></td><td>What happened last session, what is verified, what is next</td></tr>
+          <tr><td>Decision notes</td><td>Why this approach and not the obvious one</td></tr>
+          <tr><td>Git checkpoint</td><td>The exact repository state to start from</td></tr>
+          <tr><td><code>init.sh</code></td><td>The one command that makes the environment trustworthy again</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Initialisation deserves its own phase, not a corner of the feature work. Implementation maximises verified features; initialisation maximises the reliability of everything that follows. Mixed together, the agent does what is visible — it writes code — and skips what is invisible — verifying that the test framework works. The cost lands in session two, when nobody can run anything.</p>
+
+    <h2>Lab 05 — Run three sessions, twice</h2>
+    <div class="lab" data-lab="lab-5">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>05</span> &middot; Session replay</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>One feature, three sessions, two harnesses. The bare column has no progress file and no init phase. The harnessed column writes state and rehydrates in two minutes. Watch where the minutes go.</p>
+
+        <div class="sim-grid">
+          <div class="sim-col bare">
+            <h5>Bare — no state, no init</h5>
+            <div class="sim-bar"><i id="sim-bare-bar"></i></div>
+            <div class="sim-log" id="sim-bare-log"></div>
+            <div class="sim-totals"><span>elapsed <b id="sim-bare-time">0 min</b></span><span>wasted <b id="sim-bare-waste">0 min</b></span></div>
+          </div>
+          <div class="sim-col harnessed">
+            <h5>Harnessed — progress + init.sh</h5>
+            <div class="sim-bar"><i id="sim-h-bar"></i></div>
+            <div class="sim-log" id="sim-h-log"></div>
+            <div class="sim-totals"><span>elapsed <b id="sim-h-time">0 min</b></span><span>wasted <b id="sim-h-waste">0 min</b></span></div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="sim-run">Run the experiment</button>
+          <button class="btn ghost" id="sim-reset">Reset</button>
+        </div>
+        <div id="sim-note" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-4">&larr; Back</button>
+      <span class="hint">Chapter 5 of 10</span>
+      <button class="btn primary" data-next="ch-6">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 6 ============================ -->
+  <section class="chapter" id="ch-6">
+    <p class="eyebrow">Chapter 06 &middot; Scope</p>
+    <h1>One feature at a time, or nothing finishes.</h1>
+    <p class="lede">Ask for "user authentication" and you get a schema change, routes, a mail service, bcrypt, a refactored error middleware and a reorganised test directory. Twelve files, 800 lines, nothing working end to end.</p>
+
+    <p>This is arithmetic, not personality. Give the agent context capacity $$C$$ and let it activate $$k$$ tasks at once: each task gets $$C/k$$. Once $$C/k$$ drops below what a single task needs to be reasoned about and verified, none of them finish. The agent did not get dumber — you divided its attention.</p>
+
+    <div class="callout">
+      <span class="tag">WIP = 1</span>
+      <p>Pick exactly one item, implement it, run end-to-end verification, commit, update the list, unlock the next. Anthropic's long-running-agent guidance is explicit: one feature at a time, verified and recorded before moving on.</p>
+    </div>
+
+    <h2>Lab 06a — Divide the attention budget</h2>
+    <div class="lab" data-lab="lab-6a">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>06a</span> &middot; WIP calculator</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Assume 100 units of usable reasoning budget for the session and a threshold of 40 units to finish one task properly.</p>
+        <div class="field">
+          <div class="field-head"><label for="wip">Tasks in flight</label><span class="val" id="wip-v">4</span></div>
+          <input type="range" id="wip" min="1" max="8" step="1" value="4">
+        </div>
+        <div id="wip-bars"></div>
+        <div id="wip-verdict" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <h2>Lab 06b — Build a feature list that means something</h2>
+    <div class="lab" data-lab="lab-6b">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>06b</span> &middot; Feature list builder</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>A feature row needs three things to be usable: the <strong>user-visible behaviour</strong>, the <strong>exact verification</strong> that proves it, and a <strong>state</strong>. A row missing the verification is a wish. Add rows and watch the JSON and the validator respond.</p>
+
+        <div style="overflow-x:auto">
+          <table class="feat-editor">
+            <thead><tr><th style="width:32%">Title</th><th style="width:40%">User-visible behaviour</th><th style="width:28%">Verification command</th><th style="width:14%">State</th><th></th></tr></thead>
+            <tbody id="feat-rows"></tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button class="btn small" id="feat-add">+ Add feature</button>
+          <button class="btn small ghost" id="feat-copy">Copy JSON</button>
+          <button class="btn small ghost" id="feat-dl">Download</button>
+        </div>
+        <div id="feat-warn" style="margin-top:14px"></div>
+        <pre class="kit-out" id="feat-json" style="margin-top:14px;max-height:280px;border-radius:var(--r-sm)"></pre>
+      </div>
+    </div>
+
+    <p>Notice what the list is doing structurally: the scheduler reads it to choose work, the verifier reads it to decide whether the work passed, and the handoff writer reads it to summarise. It is not a memo for humans — it is the shared data structure the whole harness runs on. Which is why it has to live in the repo as machine-readable state, not in a chat transcript.</p>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-5">&larr; Back</button>
+      <span class="hint">Chapter 6 of 10</span>
+      <button class="btn primary" data-next="ch-7">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 7 ============================ -->
+  <section class="chapter" id="ch-7">
+    <p class="eyebrow">Chapter 07 &middot; Feedback</p>
+    <h1>&ldquo;Done&rdquo; is a claim. Evidence is a fact.</h1>
+    <p class="lede">Modern neural networks are systematically overconfident — reported confidence runs above actual accuracy, as Guo et al. showed in 2017. An agent that feels finished is reporting a feeling.</p>
+
+    <p>Unit tests have a designed blind spot: they isolate. Mock the dependency, test the unit, and every module passes while the system is broken. Four classes of defect survive a green unit suite:</p>
+
+    <ul>
+      <li><strong>Interface mismatch</strong> — the renderer passes a relative path, the preload script expects absolute. Both sides mock, both pass.</li>
+      <li><strong>State propagation</strong> — a migration changes the schema; an ORM cache still holds old-shaped entries.</li>
+      <li><strong>Resource lifecycle</strong> — file handles and connections acquired across components, released by none.</li>
+      <li><strong>Environment dependency</strong> — correct against mocks, wrong against real config, latency or an unavailable service.</li>
+    </ul>
+
+    <p>End-to-end verification does something subtler than catching bugs: it changes how the agent writes code. When the agent knows a full flow will be executed, it starts asking how its interface connects upstream, respects architectural boundaries, and handles error paths. The test is not only a filter, it is a constraint on the shape of the solution.</p>
+
+    <h2>Lab 07 — Try to ship a broken feature</h2>
+    <div class="lab" data-lab="lab-7">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>07</span> &middot; The termination gate</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Feature: <strong>password reset</strong>. The agent has written the schema change, the endpoint, the email template and the tests. It says: <em>"It's done."</em> Run the three gates in order — or skip one and ship.</p>
+
+        <div class="chips">
+          <button class="chip" id="gate-lint">1. Run lint &amp; typecheck</button>
+          <button class="chip" id="gate-test">2. Run the test suite</button>
+          <button class="chip" id="gate-e2e">3. Run the full user flow</button>
+          <button class="chip" id="gate-ship">Ship it now</button>
+        </div>
+        <pre class="console" id="gate-console"><span class="ln dim">$ waiting for a gate to run…</span></pre>
+        <div id="gate-verdict"></div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="tag">The pattern</span>
+      <p>Lint passes. Twelve unit tests pass. The feature is still broken in three ways that only appear when the flow runs. If your definition of done stops at "tests are green", you have automated the exact gap the agent is worst at.</p>
+    </div>
+
+    <p>The fix is structural: separate the agent that does the work from the agent that checks it. Anthropic's finding is that agents praise their own output; a checker with its own rubric and its own evidence requirement does not. Then require the evidence to be recorded — not summarised as "looks good", but as the command that ran and the output it produced.</p>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-6">&larr; Back</button>
+      <span class="hint">Chapter 7 of 10</span>
+      <button class="btn primary" data-next="ch-8">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 8 ============================ -->
+  <section class="chapter" id="ch-8">
+    <p class="eyebrow">Chapter 08 &middot; Feedback</p>
+    <h1>If you can't see it run, you're guessing.</h1>
+    <p class="lede">Code review shows what was written. Traces show what actually ran. Without the second, every retry is a random walk and every evaluation is a matter of taste.</p>
+
+    <p>Four costs arrive together when a harness has no observability. You cannot distinguish <em>correct</em> from <em>looks correct</em>. Evaluation becomes mysticism, because two evaluators with implicit standards disagree and neither can say why. Retries become blind, so the agent "fixes" unrelated code while the real cause sits untouched. And the handoff cliff gets steeper, because the next session must diagnose the system from scratch.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Without observability</th><th>With a contract and traces</th></tr></thead>
+        <tbody>
+          <tr><td>Planner</td><td>"Make the app dark mode"</td><td>Sprint contract: components, per-component criteria, exclusions</td></tr>
+          <tr><td>Evaluator</td><td>"Doesn't feel right"</td><td>"Button contrast 2.1:1, WCAG AA needs 4.5:1"</td></tr>
+          <tr><td>Retries</td><td>3–4 blind attempts, ~45 min</td><td>One targeted fix, ~15 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Then there is the end of the session. Lehman's laws say a changing system grows more complex unless you actively manage it, and agents accelerate that: OpenAI observed Codex copying whatever patterns already exist in the repo, good or bad. Left alone, drift compounds. Their team initially reserved Fridays — about 20% of weekly capacity — for cleaning up "AI slop", then replaced it with encoded golden rules, periodic cleanup tasks and rules promoted from documentation into tooling.</p>
+
+    <h2>What "clean state" actually means</h2>
+    <ul>
+      <li>The build passes, and the next session does not have to fix it first.</li>
+      <li>All tests pass, including the ones that existed before this session.</li>
+      <li>Verification ran in CI, not just on the author's machine.</li>
+      <li>Feature state and progress are updated with evidence.</li>
+      <li>Temporary files, debug prints and scaffolding are removed.</li>
+      <li>The standard startup path still works from a cold clone.</li>
+    </ul>
+
+    <h2>Lab 08 — Grade your last session's exit</h2>
+    <div class="lab" data-lab="lab-8">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>08</span> &middot; Clean-exit checklist</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Think about the last agent session you ended. Tick what was true when you walked away.</p>
+        <div class="checklist" id="exitList"></div>
+        <div class="score-line">
+          <span class="big" id="exit-score">—</span>
+          <span class="of">/ 6</span>
+          <span class="verdict" id="exit-verdict">Tick the boxes.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-7">&larr; Back</button>
+      <span class="hint">Chapter 8 of 10</span>
+      <button class="btn primary" data-next="ch-9">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 9 ============================ -->
+  <section class="chapter" id="ch-9">
+    <p class="eyebrow">Chapter 09 &middot; Automation</p>
+    <h1>Stop prompting. Start specifying a stopping condition.</h1>
+    <p class="lede">Everything so far assumed you were at the keyboard, typing. Loop engineering is the move from "do this next" to "keep going until this is true" — and the difference is one line.</p>
+
+    <p>In early 2026 Claude Code and Codex independently shipped <code>/goal</code>. You type a terminal state, close the laptop, and the agent analyses, codes, tests, fixes and retries until the condition holds. A loop has exactly three parts: <strong>a goal</strong>, <strong>a way to verify it</strong>, and <strong>a stopping condition</strong>. Without the third you have an agent that either quits early or never quits.</p>
+
+    <h2>Lab 09a — Write a loop, not a prompt</h2>
+    <div class="lab" data-lab="lab-9a">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>09a</span> &middot; /goal builder</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Fill in the terminal state and the evidence. The command assembles below — and the validator tells you which of the three parts is still missing.</p>
+        <div class="grid-2">
+          <div class="field"><div class="field-head"><label for="goal-state">End state</label></div><input type="text" id="goal-state" value="the checkout flow completes in staging with the payment sandbox"></div>
+          <div class="field"><div class="field-head"><label for="goal-verify">Verification</label></div><input type="text" id="goal-verify" value="npm run test:e2e passes with zero failures"></div>
+          <div class="field"><div class="field-head"><label for="goal-stop">Stopping condition</label></div><input type="text" id="goal-stop" value="stop and report if 3 consecutive attempts fail"></div>
+          <div class="field"><div class="field-head"><label for="goal-max">Iteration cap</label></div><input type="number" id="goal-max" value="10" min="1" max="100"></div>
+        </div>
+        <pre class="kit-out" id="goal-out" style="border-radius:var(--r-sm);white-space:pre-wrap"></pre>
+        <div class="btn-row"><button class="btn small ghost" id="goal-copy">Copy command</button></div>
+        <div id="goal-verdict" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <h2>Lab 09b — When a loop has to become a graph</h2>
+    <div class="lab" data-lab="lab-9b">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>09b</span> &middot; Loop &rarr; graph</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <p>Step through four stages. Each one adds a capability that a single loop cannot express — and a cost you have to be willing to pay.</p>
+        <div class="steps-nav" id="graphSteps">
+          <button class="step-pill on" data-step="0">1 &middot; One node</button>
+          <button class="step-pill" data-step="1">2 &middot; Fan-out</button>
+          <button class="step-pill" data-step="2">3 &middot; Checker</button>
+          <button class="step-pill" data-step="3">4 &middot; Rollback</button>
+        </div>
+        <div class="svg-wrap"><svg id="graph-svg" viewBox="0 0 720 384" role="img" aria-label="Progressive agent graph"></svg></div>
+        <p class="step-caption" id="graphCaption"></p>
+      </div>
+    </div>
+
+    <h2>The four layers are a stack, not a sequence</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Shapes</th><th>Answers</th></tr></thead>
+        <tbody>
+          <tr><td>Prompt engineering</td><td>the instruction</td><td>What do we tell the model?</td></tr>
+          <tr><td>Context engineering</td><td>the information</td><td>What should it know before deciding?</td></tr>
+          <tr><td>Loop engineering</td><td>the runtime</td><td>How does it iterate until the goal holds?</td></tr>
+          <tr><td>Graph engineering</td><td>the system</td><td>How do agents, loops and evaluators compose?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Each layer keeps the one below it. Every node in a graph still carries its own prompt, its own context, its own loop. What the graph adds is routing between them — and a bill. This term arrived in July 2026 through a joke between two engineers that the timeline took seriously; the fact-checking shows the "precursor" article predates the joke by two weeks, and the widely quoted "+18% accuracy, −85% cost" numbers come from an unrelated paper on chemical piping diagrams. The idea is real; most of the numbers around it are not.</p>
+
+    <div class="callout">
+      <span class="tag">Decision rule</span>
+      <p>Once an agent needs specialisation, parallelism, shared state, verification and recovery at the same time, it has stopped being a loop. Until then, the loop is cheaper — and the orchestration tax is real.</p>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-8">&larr; Back</button>
+      <span class="hint">Chapter 9 of 10</span>
+      <button class="btn primary" data-next="ch-10">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- ============================ CH 10 ============================ -->
+  <section class="chapter" id="ch-10">
+    <p class="eyebrow">Chapter 10 &middot; Output</p>
+    <h1>Leave with a harness, not notes.</h1>
+    <p class="lede">Everything in this tutorial converges on four files in the root of your repository. Fill this in once and you have the minimum viable harness for any project.</p>
+
+    <div class="lab" data-lab="lab-10">
+      <div class="lab-head">
+        <span class="lab-label">Lab <span>10</span> &middot; Harness kit generator</span>
+        <span class="lab-status" data-status>not started</span>
+      </div>
+      <div class="lab-body">
+        <div class="grid-2">
+          <div class="field"><div class="field-head"><label for="kit-name">Project name</label></div><input type="text" id="kit-name" value="acme-api"></div>
+          <div class="field"><div class="field-head"><label for="kit-stack">Stack</label></div><input type="text" id="kit-stack" value="Python 3.12 / FastAPI / Postgres"></div>
+          <div class="field"><div class="field-head"><label for="kit-install">Install command</label></div><input type="text" id="kit-install" value="pip install -e ."></div>
+          <div class="field"><div class="field-head"><label for="kit-start">Start command</label></div><input type="text" id="kit-start" value="uvicorn app.main:app --reload"></div>
+          <div class="field"><div class="field-head"><label for="kit-lint">Lint / typecheck</label></div><input type="text" id="kit-lint" value="ruff check . && mypy app"></div>
+          <div class="field"><div class="field-head"><label for="kit-test">Unit tests</label></div><input type="text" id="kit-test" value="pytest -q"></div>
+          <div class="field"><div class="field-head"><label for="kit-e2e">End-to-end check</label></div><input type="text" id="kit-e2e" value="pytest -q tests/e2e"></div>
+          <div class="field"><div class="field-head"><label for="kit-feature">First feature</label></div><input type="text" id="kit-feature" value="A user can sign in and see their dashboard"></div>
+        </div>
+
+        <div class="kit-tabs" id="kitTabs">
+          <button class="kit-tab on" data-file="agents">AGENTS.md</button>
+          <button class="kit-tab" data-file="features">feature_list.json</button>
+          <button class="kit-tab" data-file="init">init.sh</button>
+          <button class="kit-tab" data-file="progress">progress.md</button>
+        </div>
+        <pre class="kit-out" id="kit-out"></pre>
+        <div class="btn-row">
+          <button class="btn small primary" id="kit-dl">Download this file</button>
+          <button class="btn small ghost" id="kit-copy">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <h2>Your readiness, so far</h2>
+    <div id="finalScore"></div>
+
+    <h2>Where to go next</h2>
+    <p>The course this page is based on is genuinely good and much longer than this: 14 lectures, 8 hands-on projects, and reverse-engineered breakdowns of how Claude Code, Codex, Pi and DeepSeek build their own harnesses. It also ships a <code>harness-creator</code> skill that scaffolds a harness inside an existing repo, in 15 languages.</p>
+    <ul>
+      <li><a href="https://github.com/walkinglabs/learn-harness-engineering" target="_blank" rel="noopener">walkinglabs/learn-harness-engineering</a> — the course repository (MIT)</li>
+      <li><a href="https://walkinglabs.github.io/learn-harness-engineering/" target="_blank" rel="noopener">The course site</a> — lectures, projects, templates</li>
+      <li><a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noopener">OpenAI: Harness engineering</a> — "the repo is the spec"</li>
+      <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener">Anthropic: Effective harnesses for long-running agents</a></li>
+      <li><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">Anthropic: Harness design for long-running application development</a></li>
+    </ul>
+
+    <h2>The one thing to keep</h2>
+    <div class="blockquote">
+      <p>When a session goes wrong, do not reach for a bigger model. Name the layer: instructions, tools, environment, state, feedback. Fix that layer. Repeat.</p>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="btn" data-prev="ch-9">&larr; Back</button>
+      <span class="hint">End of tutorial</span>
+      <button class="btn primary" data-ch-link="ch-0">Start again</button>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<footer class="site-foot">
+  <p>An independent interactive tutorial on harness engineering. Theory follows the MIT-licensed <a href="https://github.com/walkinglabs/learn-harness-engineering" target="_blank" rel="noopener">Learn Harness Engineering</a> course; simulators, copy and generated templates are original to this page. Progress is stored locally in your browser.</p>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

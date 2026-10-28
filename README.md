@@ -25,6 +25,22 @@ or press a button and the numbers change, because the model behind them is the p
 | 09 Loops and graphs | `/goal` builder + loop-to-graph stepper |
 | 10 Build your harness kit | Generates `AGENTS.md`, `feature_list.json`, `init.sh`, `progress.md` |
 
+
+## Theme variants
+
+Four visual directions are included and can be previewed side by side:
+
+| Variant | Preview | Character |
+|---|---|---|
+| Swiss grid | `preview-swiss.html` | Light, heavy grotesque, black rules, one red accent |
+| Terminal phosphor | `preview-terminal.html` | Near-black, all-monospace, green on scanlines |
+| Editorial noir | `preview-noir.html` | Warm near-black, serif display, gold |
+| Blueprint | `preview-blueprint.html` | Deep blue drawing grid, technical mono labels, amber |
+
+The main `index.html` uses the default (paper/ink) theme. Each preview page is the same
+content with one extra stylesheet from `themes/`. To adopt a variant permanently, replace
+`assets/style.css` with that theme file and delete the extra link.
+
 ## Running locally
 
 No build step, no dependencies, no network calls at runtime.
