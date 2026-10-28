@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample B — Workbench · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Public+Sans:ital,wght@0,300..700;1,400&family=Azeret+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4f7; --card:#ffffff; --card-2:#f8fafb;
+  --ink:#0e1318; --ink-2:#333c45; --dim:#69737d; --faint:#98a1aa;
+  --line:#e2e6ea; --line-2:#cfd6dd;
+  --accent:#e0492b; --accent-soft:#fdece8;
+  --blue:#1f5fa8; --blue-soft:#e9f1fa;
+  --green:#2f7d4f; --green-soft:#e8f4ed;
+  --disp:"Bricolage Grotesque","Avenir Next",sans-serif;
+  --sans:"Public Sans",-apple-system,sans-serif;
+  --mono:"Azeret Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased}
+.badge{position:fixed; right:16px; bottom:16px; z-index:60; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; background:var(--ink); color:#fff; padding:7px 12px; border-radius:3px}
+
+/* ---------- bar ---------- */
+.bar{
+  position:sticky; top:0; z-index:50; height:58px;
+  display:flex; align-items:center; gap:22px;
+  padding:0 clamp(16px,3vw,32px);
+  background:rgba(255,255,255,.88); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.mark{font-family:var(--disp); font-weight:700; font-size:16.5px; letter-spacing:-.02em; display:flex; align-items:center; gap:9px}
+.mark i{width:9px; height:9px; border-radius:2px; background:var(--accent); display:inline-block}
+.steps{display:flex; gap:4px; margin-left:8px}
+.steps i{width:22px; height:3px; border-radius:2px; background:var(--line-2)}
+.steps i.on{background:var(--ink)}
+.steps i.cur{background:var(--accent)}
+.bar .spacer{flex:1}
+.pill{
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--dim); border:1px solid var(--line-2); border-radius:99px; padding:5px 11px;
+}
+
+/* ---------- shell ---------- */
+.shell{
+  display:grid; grid-template-columns:minmax(0,1fr); gap:28px;
+  max-width:1460px; margin:0 auto; padding:28px clamp(16px,3vw,32px) 60px;
+}
+@media(min-width:1060px){
+  .shell{grid-template-columns:minmax(0,540px) minmax(0,1fr); gap:44px; align-items:start}
+  .read{position:relative}
+  .bench{position:sticky; top:78px; max-height:calc(100vh - 104px); display:flex; flex-direction:column}
+}
+
+/* ---------- reading column ---------- */
+.read{padding-top:6px}
+.kicker{
+  font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 14px;
+}
+h1{
+  font-family:var(--disp); font-weight:700; font-size:clamp(30px,3.6vw,42px);
+  line-height:1.06; letter-spacing:-.028em; margin:0 0 16px;
+}
+.lede{font-size:17.5px; line-height:1.6; color:var(--ink-2); margin:0 0 26px}
+h2{
+  font-family:var(--disp); font-weight:600; font-size:19px; letter-spacing:-.01em;
+  margin:38px 0 10px; display:flex; align-items:baseline; gap:10px;
+}
+h2 span{font-family:var(--mono); font-size:10px; font-weight:400; color:var(--faint); letter-spacing:.1em}
+p{margin:0 0 16px}
+p a{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft)}
+code{font-family:var(--mono); font-size:.82em; background:#fff; border:1px solid var(--line); border-radius:3px; padding:1px 5px}
+.key{
+  background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0; padding:14px 16px; margin:24px 0; font-size:15px; color:var(--ink-2);
+}
+.key b{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:5px}
+.rows{border-top:1px solid var(--line); margin:6px 0 20px}
+.row{display:grid; grid-template-columns:112px minmax(0,1fr); gap:14px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14.5px}
+.row dt{font-weight:600; margin:0}
+.row dd{margin:0; color:var(--dim)}
+.row dd code{font-size:11.5px}
+
+.pager{display:flex; gap:10px; margin:36px 0 0; padding-top:20px; border-top:1px solid var(--line)}
+.pager a{
+  flex:1; text-decoration:none; color:var(--ink); background:var(--card);
+  border:1px solid var(--line); border-radius:9px; padding:12px 14px;
+  font-size:13.5px; transition:border-color .15s, transform .15s;
+}
+.pager a:hover{border-color:var(--line-2); transform:translateY(-1px)}
+.pager small{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:3px}
+.pager a.next{text-align:right}
+
+/* ---------- workbench panel ---------- */
+.bench{
+  background:var(--card); border:1px solid var(--line-2); border-radius:12px;
+  box-shadow:0 1px 2px rgba(14,19,24,.04), 0 12px 32px -12px rgba(14,19,24,.10);
+  overflow:hidden;
+}
+.tabs{
+  display:flex; align-items:stretch; gap:2px; background:var(--card-2);
+  border-bottom:1px solid var(--line); padding:0 8px;
+}
+.tabs button{
+  appearance:none; border:0; background:none; cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--faint); padding:12px 12px 11px; border-bottom:2px solid transparent;
+  transition:color .15s, border-color .15s;
+}
+.tabs button:hover{color:var(--ink-2)}
+.tabs button.on{color:var(--ink); border-bottom-color:var(--accent)}
+.tabs .grow{flex:1}
+.tabs .live{
+  align-self:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.12em;
+  color:var(--green); background:var(--green-soft); padding:3px 7px; border-radius:99px;
+}
+.panel{padding:22px 22px 24px; overflow:auto; min-height:0}
+.panel h3{
+  font-family:var(--disp); font-weight:600; font-size:16px; margin:0 0 4px; letter-spacing:-.01em;
+}
+.panel .sub{font-size:13.5px; color:var(--dim); margin:0 0 20px}
+.hidden{display:none}
+
+/* scorecard */
+.sc{display:grid; gap:15px}
+.sc-item label{display:flex; justify-content:space-between; align-items:baseline; font-size:13.5px; font-weight:600; margin-bottom:2px}
+.sc-item label em{font-style:normal; font-family:var(--mono); font-size:10.5px; color:var(--faint)}
+.sc-item .h{font-size:12px; color:var(--faint); margin:0 0 4px}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:16px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px; border-radius:2px; background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:14px; height:14px; margin-top:-5.5px; border-radius:4px; background:var(--accent); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-track{height:3px; background:var(--line-2)}
+input[type=range]::-moz-range-thumb{width:12px; height:12px; border-radius:3px; background:var(--accent); border:2px solid #fff}
+.result{
+  margin-top:18px; padding:14px 16px; background:var(--card-2); border:1px solid var(--line);
+  border-radius:9px;
+}
+.result .big{font-family:var(--disp); font-weight:700; font-size:32px; line-height:1; letter-spacing:-.03em}
+.result .of{font-family:var(--mono); font-size:10.5px; color:var(--faint); margin-left:6px}
+.result p{margin:8px 0 0; font-size:13px; line-height:1.6; color:var(--ink-2)}
+.result p b{color:var(--ink)}
+
+/* budget tab */
+.budget-bar{display:flex; height:34px; border-radius:7px; overflow:hidden; border:1px solid var(--line); font-family:var(--mono); font-size:9px; color:#fff}
+.budget-bar div{display:flex; align-items:center; justify-content:center; white-space:nowrap; overflow:hidden}
+.legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-family:var(--mono); font-size:10px; color:var(--dim)}
+.legend i{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px}
+.field{margin:18px 0 0}
+.field label{display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; margin-bottom:4px}
+.field label em{font-style:normal; font-family:var(--mono); font-size:10.5px; color:var(--faint)}
+.verdict{margin-top:16px; font-size:13px; line-height:1.6; padding:11px 13px; border-radius:8px; background:var(--accent-soft); color:#8a2f18}
+.verdict.ok{background:var(--green-soft); color:#1f5c39}
+.verdict b{color:inherit}
+
+@media(max-width:1059px){
+  .bench{margin-top:6px}
+  .panel{max-height:none}
+}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE B · WORKBENCH</div>
+
+<header class="bar">
+  <div class="mark"><i></i>Harness Engineering</div>
+  <div class="steps">
+    <i class="on"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="spacer"></div>
+  <span class="pill">Chapter 02 / 10</span>
+</header>
+
+<div class="shell">
+
+  <!-- ============ reading ============ -->
+  <div class="read">
+    <p class="kicker">Chapter 02 · Definition</p>
+    <h1>A prompt file is not a harness.</h1>
+    <p class="lede">People say "harness" and mean "the system prompt I wrote." That is one of five subsystems. The other four are where most reliability actually comes from.</p>
+
+    <p>A new engineer joins your project with no README, no comments, nobody to ask, and CI config buried somewhere. Smart people still struggle — they spend the day working out what the project <em>is</em> instead of solving the problem. An agent has it worse: it can only see the files you put in front of it and the commands it can run.</p>
+
+    <div class="key">
+      <b>Key idea</b>
+      The repo is the spec. Anything the agent cannot see in the repository does not exist for it — no matter how obvious it is to your team.
+    </div>
+
+    <h2><span>2.1</span>The five subsystems</h2>
+    <dl class="rows">
+      <div class="row"><dt>Instructions</dt><dd>Rules, conventions, definition of done — <code>AGENTS.md</code></dd></div>
+      <div class="row"><dt>Tools</dt><dd>What the agent can actually do — shell, test runner, linters</dd></div>
+      <div class="row"><dt>Environment</dt><dd>A runnable, isolated place to work — <code>init.sh</code>, lockfiles</dd></div>
+      <div class="row"><dt>State</dt><dd>What is done, why, and what is next — <code>feature_list.json</code></dd></div>
+      <div class="row"><dt>Feedback</dt><dd>Evidence of what actually happened — tests, traces</dd></div>
+    </dl>
+
+    <h2><span>2.2</span>Why the weakest link wins</h2>
+    <p>A harness is a chain. A brilliant instruction file cannot rescue an agent that cannot run the tests; a perfect test suite does nothing if the agent never learns what state it is in. Adding strength anywhere else is wasted until the weakest layer is fixed.</p>
+
+    <p>That is what the panel on the right is for. Score your repo, then move to the next chapter — the lab follows you through the whole lesson instead of interrupting the text.</p>
+
+    <div class="pager">
+      <a href="#"><small>Previous</small>Why capable agents fail</a>
+      <a href="#" class="next"><small>Next</small>The repo as source of truth</a>
+    </div>
+  </div>
+
+  <!-- ============ workbench ============ -->
+  <aside class="bench">
+    <div class="tabs">
+      <button class="on" data-p="p1">Lab 02 · Scorecard</button>
+      <button data-p="p2">Lab 04a · Context budget</button>
+      <span class="grow"></span>
+      <span class="live">live</span>
+    </div>
+
+    <div class="panel" id="p1">
+      <h3>Score your own harness</h3>
+      <p class="sub">Rate the repo you use an agent on most often. 0 = does not exist, 4 = solid and maintained.</p>
+      <div class="sc" id="sc"></div>
+      <div class="result">
+        <span class="big" id="big">10</span><span class="of">/ 20</span>
+        <p id="vd"></p>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="p2">
+      <h3>Spend a context window</h3>
+      <p class="sub">A 200k window, a task that needs real source files, and tool output you cannot avoid.</p>
+      <div class="budget-bar" id="bar"></div>
+      <div class="legend" id="legend"></div>
+      <div class="field">
+        <label for="lines">Instruction file <em id="lines-v">600 lines</em></label>
+        <input type="range" id="lines" min="20" max="600" step="10" value="600">
+      </div>
+      <div class="field">
+        <label for="files">Source files the task needs <em id="files-v">24</em></label>
+        <input type="range" id="files" min="2" max="60" step="1" value="24">
+      </div>
+      <div class="verdict" id="bvd"></div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+/* tabs */
+document.querySelectorAll('.tabs button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+    ['p1','p2'].forEach(function(id){document.getElementById(id).classList.toggle('hidden', id!==b.dataset.p)});
+  });
+});
+
+/* scorecard */
+(function(){
+  var SUBS=[
+    {id:'i',n:'Instructions',h:'AGENTS.md, conventions, done criteria'},
+    {id:'t',n:'Tools',h:'test runner, linters, scripts'},
+    {id:'e',n:'Environment',h:'init.sh, lockfiles, cold-clone start'},
+    {id:'s',n:'State',h:'feature list, progress log, git'},
+    {id:'f',n:'Feedback',h:'tests, e2e, traces, rubric'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML=SUBS.map(function(s){
+    return '<div class="sc-item"><label for="q-'+s.id+'"><span>'+s.n+'</span><em id="qv-'+s.id+'">2 / 4</em></label>'+
+      '<p class="h">'+s.h+'</p>'+
+      '<input type="range" id="q-'+s.id+'" min="0" max="4" step="1" value="2"></div>';
+  }).join('');
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('q-'+s.id).value;
+      tot+=v; document.getElementById('qv-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20) vd.innerHTML='<b>Fully harnessed.</b> Now audit — remove one subsystem at a time and watch for the drop.';
+    else if(worst.v<=1) vd.innerHTML='<b>Bottleneck: '+worst.s.n.toLowerCase()+'</b> ('+worst.v+'/4). Everything else you add is wasted until this is fixed.';
+    else if(worst.v===2) vd.innerHTML='<b>Weakest: '+worst.s.n.toLowerCase()+'</b> ('+worst.v+'/4). Sessions mostly work, then fail without explanation.';
+    else vd.innerHTML='<b>Solid.</b> Weakest is '+worst.s.n.toLowerCase()+' at '+worst.v+'/4. Next gain is sharper verification.';
+  }
+  host.addEventListener('input',upd); upd();
+})();
+
+/* budget */
+(function(){
+  var W=200000,TPL=30,TPF=1200,TOOL=30000;
+  var lines=document.getElementById('lines'), files=document.getElementById('files');
+  function render(){
+    var L=+lines.value, F=+files.value;
+    document.getElementById('lines-v').textContent=L+' lines';
+    document.getElementById('files-v').textContent=F+' files';
+    var instr=L*TPL, src=F*TPF, used=instr+src+TOOL, free=W-used;
+    var segs=[
+      {k:'Instructions',v:instr,c:'#e0492b'},
+      {k:'Source files',v:src,c:'#1f5fa8'},
+      {k:'Tool output',v:TOOL,c:'#b8860b'},
+      {k:free>=0?'Left for reasoning':'OVERFLOW',v:Math.abs(free),c:free>=0?'#2f7d4f':'#9a2b20'}
+    ];
+    var tot=segs.reduce(function(a,s){return a+s.v},0);
+    document.getElementById('bar').innerHTML=segs.map(function(s){
+      var p=s.v/tot*100;
+      return '<div style="width:'+p+'%;background:'+s.c+'">'+(p>13?Math.round(p)+'%':'')+'</div>';
+    }).join('');
+    document.getElementById('legend').innerHTML=segs.map(function(s){
+      return '<span><i style="background:'+s.c+'"></i>'+s.k+' · '+Math.round(s.v/1000)+'k</span>';
+    }).join('');
+    var pct=instr/W*100, vd=document.getElementById('bvd');
+    if(free<0){ vd.className='verdict'; vd.innerHTML='<b>Over budget before you start.</b> The agent will skim instead of read, and its "done" gets even less trustworthy.'; }
+    else if(pct>8){ vd.className='verdict'; vd.innerHTML='<b>Instruction bloat.</b> '+pct.toFixed(0)+'% of the window is gone before any code is read — the range where rules start crowding out reasoning.'; }
+    else { vd.className='verdict ok'; vd.innerHTML='<b>Healthy.</b> '+pct.toFixed(1)+'% on instructions, '+Math.round(free/1000)+'k left for reasoning and verification.'; }
+  }
+  lines.addEventListener('input',render); files.addEventListener('input',render); render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample A — Long read · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..600&family=Work+Sans:ital,wght@0,300..700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fdfcf9; --paper-2:#f6f4ee; --card:#ffffff;
+  --ink:#15140f; --ink-2:#3d3b34; --dim:#77736a; --faint:#a39e93;
+  --line:#e6e2d8; --line-2:#d3cec1;
+  --accent:#1c5d99; --accent-soft:#e8f0f7;
+  --warn:#9a2b20; --warn-soft:#f9ece9;
+  --good:#3f6b3a;
+  --serif:"Source Serif 4",Georgia,serif;
+  --sans:"Work Sans",-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---------- sample badge ---------- */
+.badge{
+  position:fixed; right:16px; bottom:16px; z-index:60;
+  font-family:var(--mono); font-size:10px; letter-spacing:.16em;
+  background:var(--ink); color:var(--paper); padding:7px 12px; border-radius:2px;
+}
+/* ---------- top bar ---------- */
+.bar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(253,252,249,.94); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.bar-in{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  padding:14px clamp(20px,4vw,56px) 12px;
+}
+.mark{font-family:var(--serif); font-size:19px; letter-spacing:-.01em}
+.mark span{color:var(--accent)}
+.meta{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint)}
+/* chapter index strip */
+.index{
+  display:flex; align-items:stretch; gap:0; overflow-x:auto;
+  padding:0 clamp(20px,4vw,56px); border-top:1px solid var(--line);
+  scrollbar-width:none;
+}
+.index::-webkit-scrollbar{display:none}
+.index a{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  color:var(--faint); text-decoration:none; padding:9px 13px 8px;
+  border-bottom:2px solid transparent; white-space:nowrap;
+  transition:color .15s, border-color .15s;
+}
+.index a:hover{color:var(--ink-2)}
+.index a.on{color:var(--accent); border-bottom-color:var(--accent)}
+.index a b{font-weight:500; margin-right:6px}
+.index a i{font-style:normal; text-transform:none; letter-spacing:0; font-family:var(--sans); font-size:12px; color:inherit}
+.index a:not(.on) i{display:none}
+@media(min-width:1100px){ .index a:not(.on) i{display:inline} }
+
+/* ---------- article grid ---------- */
+main{padding:0 clamp(20px,4vw,56px)}
+article{
+  display:grid; grid-template-columns:minmax(0,1fr);
+  justify-content:center;
+  padding:clamp(40px,7vw,92px) 0 0;
+}
+article{scroll-margin-top:100px}
+figure{scroll-margin-top:90px}
+article > *{grid-column:1; max-width:66ch; width:100%; margin-left:auto; margin-right:auto}
+article > .wide{max-width:none}
+@media(min-width:1180px){
+  article{grid-template-columns:200px minmax(0,66ch) 1fr; column-gap:44px}
+  article > *{grid-column:2; margin-left:0}
+  article > .wide{grid-column:1 / -1; max-width:none; margin-left:0}
+  .note{grid-column:1; max-width:200px; margin:6px 0 0; text-align:right}
+}
+
+.kicker{
+  font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 18px; display:flex; align-items:center; gap:12px;
+}
+.kicker::after{content:""; flex:1; height:1px; background:var(--line-2)}
+h1{
+  font-family:var(--serif); font-weight:400; font-size:clamp(38px,5.6vw,64px);
+  line-height:1.04; letter-spacing:-.018em; margin:0 0 22px; text-wrap:balance;
+}
+.lede{
+  font-family:var(--serif); font-size:clamp(19px,2.2vw,23px); line-height:1.55;
+  color:var(--ink-2); margin:0 0 30px; font-weight:300;
+}
+h2{
+  font-family:var(--serif); font-weight:500; font-size:clamp(24px,3vw,31px);
+  line-height:1.2; letter-spacing:-.01em; margin:56px 0 14px;
+}
+h2 .num{
+  font-family:var(--mono); font-size:11px; font-weight:400; letter-spacing:.1em;
+  color:var(--faint); display:block; margin-bottom:8px;
+}
+p{margin:0 0 18px}
+p a{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft)}
+p a:hover{border-bottom-color:var(--accent)}
+em{font-style:italic}
+strong{font-weight:600}
+code{
+  font-family:var(--mono); font-size:.84em; background:var(--paper-2);
+  padding:1px 5px; border-radius:2px; border:1px solid var(--line);
+}
+.note{
+  font-size:13.5px; line-height:1.6; color:var(--dim);
+  border-top:2px solid var(--line-2); padding-top:8px; margin:22px 0;
+}
+.note b{display:block; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--faint); margin-bottom:5px; font-weight:500}
+
+/* ---------- table ---------- */
+.table{width:100%; border-collapse:collapse; margin:8px 0 22px; font-size:15px}
+.table th{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--faint); font-weight:500; text-align:left; padding:0 14px 8px 0;
+  border-bottom:1px solid var(--ink);
+}
+.table td{padding:12px 14px 12px 0; border-bottom:1px solid var(--line); vertical-align:top}
+.table tr:last-child td{border-bottom:1px solid var(--ink)}
+.table td:first-child{font-weight:500; white-space:nowrap}
+
+/* ---------- figure / lab ---------- */
+figure{margin:44px 0 52px}
+.figcap{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--faint); padding-bottom:9px; border-bottom:1px solid var(--ink);
+}
+.figcap b{color:var(--ink); font-weight:500}
+.figbody{
+  background:var(--card); border:1px solid var(--line); border-top:none;
+  padding:clamp(20px,3vw,34px); display:grid; gap:26px;
+}
+@media(min-width:900px){
+  .figbody.two{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:0; align-items:stretch}
+  .figbody.two > div:first-child{padding-right:34px}
+  .figbody.two > div:last-child{border-left:1px solid var(--line); padding-left:34px}
+}
+.figbody p{font-size:15.5px; color:var(--ink-2); margin-bottom:0}
+
+/* scorecard */
+.sc-row{display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:10px; margin-bottom:3px}
+.sc-row label{font-size:14px; font-weight:500}
+.sc-row .v{font-family:var(--mono); font-size:11.5px; color:var(--dim)}
+.sc-hint{font-size:12px; color:var(--faint); margin:0 0 6px}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:18px;
+  background:transparent; cursor:pointer; margin:0 0 12px;
+}
+input[type=range]::-webkit-slider-runnable-track{height:2px; background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:13px; height:13px; margin-top:-5.5px;
+  border-radius:50%; background:var(--accent); border:2px solid var(--card);
+  box-shadow:0 0 0 1px var(--accent);
+}
+input[type=range]::-moz-range-track{height:2px; background:var(--line-2)}
+input[type=range]::-moz-range-thumb{width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid #fff}
+.sc-out{border-top:1px solid var(--line); padding-top:16px; margin-top:4px}
+.sc-score{display:flex; align-items:baseline; gap:10px; margin-bottom:8px}
+.sc-score .big{font-family:var(--serif); font-size:46px; line-height:1; font-weight:400}
+.sc-score .of{font-family:var(--mono); font-size:11px; color:var(--faint)}
+.sc-verdict{font-size:14.5px; line-height:1.6; color:var(--ink-2); margin:0}
+.sc-verdict b{color:var(--ink)}
+.tag{
+  display:inline-block; font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+  text-transform:uppercase; padding:3px 8px; border-radius:2px;
+  background:var(--accent-soft); color:var(--accent); margin-bottom:10px;
+}
+.tag.bad{background:var(--warn-soft); color:var(--warn)}
+
+/* ---------- next chapter teaser ---------- */
+.next{
+  grid-column:1 / -1; margin:64px 0 0; border-top:1px solid var(--ink);
+  padding:26px 0 0;
+}
+.next .lab-l{font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint)}
+.next a{
+  display:flex; align-items:baseline; gap:18px; text-decoration:none; color:var(--ink);
+  font-family:var(--serif); font-size:clamp(24px,3.4vw,34px); margin-top:8px;
+  transition:color .15s;
+}
+.next a:hover{color:var(--accent)}
+.next a span{font-family:var(--mono); font-size:12px; color:var(--faint)}
+
+footer{
+  margin-top:70px; padding:26px clamp(20px,4vw,56px) 60px;
+  border-top:1px solid var(--line); color:var(--faint); font-size:13px;
+}
+footer a{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE A · LONG READ</div>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="mark">Harness <span>Engineering</span></div>
+    <div class="meta">11 chapters · 9 labs · read straight through</div>
+  </div>
+  <nav class="index" id="index">
+    <a href="#c1" data-t="c1"><b>01</b><i>Why agents fail</i></a>
+    <a href="#c2" data-t="c2" class="on"><b>02</b><i>What a harness is</i></a>
+    <a href="#c3" data-t="c3"><b>03</b><i>Repo as truth</i></a>
+    <a href="#c4" data-t="c4"><b>04</b><i>Instructions</i></a>
+    <a href="#c5" data-t="c5"><b>05</b><i>Continuity</i></a>
+    <a href="#c6" data-t="c6"><b>06</b><i>Scope</i></a>
+    <a href="#c7" data-t="c7"><b>07</b><i>Verification</i></a>
+    <a href="#c8" data-t="c8"><b>08</b><i>Observability</i></a>
+    <a href="#c9" data-t="c9"><b>09</b><i>Loops</i></a>
+    <a href="#c10" data-t="c10"><b>10</b><i>Your kit</i></a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================= CHAPTER 02 ================= -->
+<article id="c2">
+  <p class="kicker">Chapter 02 · Definition</p>
+  <h1>A prompt file is not a harness.</h1>
+  <p class="lede">People say "harness" and mean "the system prompt I wrote." That is one of five subsystems. The other four are where most reliability actually comes from.</p>
+
+  <p>The analogy that makes it click: a new engineer joins your project with no README, no comments, nobody to ask, and CI config buried somewhere. Smart people still struggle — they spend their day working out what the project <em>is</em> instead of solving the problem. An agent has it worse: it can only see the files you put in front of it and the commands it can run.</p>
+
+  <p>OpenAI frames the core principle as <em>the repo is the spec</em>. Anthropic frames it as state persistence and explicit recovery paths. Different words, same claim: everything outside the model weights decides how much of the model's capability actually gets realised.</p>
+
+  <div class="note">
+    <b>Marginal note</b>
+    Remove one subsystem at a time and re-run the same task. Whichever removal hurts most is the one to invest in next.
+  </div>
+
+  <h2><span class="num">2.1</span>The five subsystems</h2>
+
+  <table class="table">
+    <thead><tr><th>Subsystem</th><th>What it carries</th><th>Typical artefacts</th></tr></thead>
+    <tbody>
+      <tr><td>Instructions</td><td>Rules, conventions, definition of done</td><td><code>AGENTS.md</code>, <code>docs/</code></td></tr>
+      <tr><td>Tools</td><td>What the agent can actually do</td><td>shell, test runner, linters, MCP</td></tr>
+      <tr><td>Environment</td><td>A runnable, isolated place to work</td><td><code>init.sh</code>, lockfiles, worktrees</td></tr>
+      <tr><td>State</td><td>What is done, why, and what is next</td><td><code>feature_list.json</code>, progress log</td></tr>
+      <tr><td>Feedback</td><td>Evidence of what actually happened</td><td>tests, type checks, traces, logs</td></tr>
+    </tbody>
+  </table>
+
+  <p>Three habits separate a real harness from a prompt dump. Give a map, not a manual. Constrain, don't micromanage. And measure what each part is worth rather than assuming.</p>
+
+  <figure class="wide" id="fig021">
+    <div class="figcap"><span><b>Figure 02.1</b> — Score your own harness</span><span>interactive · 5 inputs</span></div>
+    <div class="figbody two">
+      <div>
+        <p>Rate the repo you use an agent on most often. 0 means it does not exist; 4 means solid and maintained.</p>
+        <p style="margin-top:14px;color:var(--faint);font-size:13.5px">The verdict is driven by your weakest link, not your average — that is how reliability actually behaves.</p>
+      </div>
+      <div id="sc"></div>
+    </div>
+  </figure>
+
+  <h2><span class="num">2.2</span>Why the weakest link wins</h2>
+  <p>A harness is a chain. A brilliant instruction file cannot rescue an agent that cannot run the tests; a perfect test suite does nothing if the agent never learns what state it is in. Adding strength anywhere else is mostly wasted effort until the weakest layer is fixed.</p>
+</article>
+
+<!-- ================= CHAPTER 03 (peek) ================= -->
+<article id="c3">
+  <p class="kicker">Chapter 03 · Instructions</p>
+  <h1>If it isn't in the repo, it doesn't exist.</h1>
+  <p class="lede">An agent has three inputs: the task description, the contents of the repository, and the output of commands it runs. Slack, Jira and the decision you made on Friday are all invisible to it.</p>
+  <p>This is not a "write more documentation" problem. It is a "put the decision where it will be needed" problem. A 50-line <code>ARCHITECTURE.md</code> inside <code>src/api/</code> beats a 500-page wiki nobody maintains, because information only helps at the moment it is in front of the reader.</p>
+
+  <figure class="wide">
+    <div class="figcap"><span><b>Figure 03.1</b> — The fresh-session test</span><span>five questions</span></div>
+    <div class="figbody">
+      <table class="table" style="margin:0">
+        <thead><tr><th>Question</th><th>Where the answer must live</th><th>Your repo</th></tr></thead>
+        <tbody>
+          <tr><td>What is this system?</td><td><code>README.md</code> / <code>AGENTS.md</code></td><td>yes</td></tr>
+          <tr><td>How is it organised?</td><td><code>ARCHITECTURE.md</code></td><td>yes</td></tr>
+          <tr><td>How do I run it?</td><td><code>init.sh</code>, package scripts</td><td>partly</td></tr>
+          <tr><td>How do I verify it?</td><td>test / lint / typecheck commands</td><td>no</td></tr>
+          <tr><td>Where are we now?</td><td><code>feature_list.json</code>, git log</td><td>no</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </figure>
+
+  <div class="next">
+    <div class="lab-l">Next</div>
+    <a href="#c4">04 — Your 600-line instruction file is hurting the agent <span>→</span></a>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  Layout A · single continuous read, no sidebar, no page turning. Labs break out of the text column as numbered figures. Progress lives in the strip under the title bar.
+</footer>
+
+<script>
+/* ---------- scorecard ---------- */
+(function(){
+  var SUBS=[
+    {id:'i',n:'Instructions',h:'AGENTS.md, conventions, definition of done'},
+    {id:'t',n:'Tools',h:'test runner, linters, scripts'},
+    {id:'e',n:'Environment',h:'init.sh, lockfiles, cold-clone start'},
+    {id:'s',n:'State',h:'feature list, progress log, git'},
+    {id:'f',n:'Feedback',h:'tests, e2e, traces, rubric'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML = SUBS.map(function(s){
+    return '<div class="sc-row"><label for="s-'+s.id+'">'+s.n+'</label><span class="v" id="v-'+s.id+'">2 / 4</span></div>'+
+      '<p class="sc-hint">'+s.h+'</p>'+
+      '<input type="range" id="s-'+s.id+'" min="0" max="4" step="1" value="2" data-id="'+s.id+'">';
+  }).join('') + '<div class="sc-out"><div class="sc-score"><span class="big" id="big">10</span><span class="of">/ 20</span></div><p class="sc-verdict" id="vd"></p></div>';
+
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('s-'+s.id).value;
+      tot+=v; document.getElementById('v-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20){ vd.innerHTML='<b>Fully harnessed.</b> Now audit: remove one subsystem at a time and see whether performance actually drops.'; }
+    else if(worst.v<=1){ vd.innerHTML='<b>Bottleneck: '+worst.s.n.toLowerCase()+'</b> ('+worst.v+'/4). Adding strength anywhere else is wasted until this is fixed — a harness is a chain.'; }
+    else if(worst.v===2){ vd.innerHTML='<b>Weakest: '+worst.s.n.toLowerCase()+'</b> ('+worst.v+'/4). Sessions mostly work and occasionally fail without explanation. Fix this layer before adding anything new.'; }
+    else { vd.innerHTML='<b>Solid.</b> Weakest is '+worst.s.n.toLowerCase()+' at '+worst.v+'/4. The next gain is sharper verification, not more instructions.'; }
+  }
+  host.addEventListener('input',upd); upd();
+})();
+
+/* ---------- scroll spy ---------- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#index a'));
+  var targets=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function spy(){
+    var y=window.scrollY+120, best=targets[0];
+    targets.forEach(function(t){ if(t.offsetTop<=y) best=t; });
+    links.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href')==='#'+best.id); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+</body>
+</html>

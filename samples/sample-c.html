@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample C — Course board · Harness Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Figtree:ital,wght@0,300..800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f4; --card:#ffffff; --card-2:#f7f9fa;
+  --ink:#12161b; --ink-2:#39424c; --dim:#6b7681; --faint:#98a2ac;
+  --line:#e3e8ec; --line-2:#d2d9e0;
+  --teal:#0b7285; --teal-soft:#e3f2f4;
+  --berry:#c2255c; --berry-soft:#fbe9ef;
+  --amber:#a16207; --amber-soft:#fbf1dc;
+  --green:#2f7d4f; --green-soft:#e7f3ec;
+  --disp:"Sora","Avenir Next",sans-serif;
+  --sans:"Figtree",-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --r:16px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16.5px; line-height:1.65; -webkit-font-smoothing:antialiased}
+.badge{position:fixed; right:16px; bottom:16px; z-index:60; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; background:var(--ink); color:#fff; padding:7px 12px; border-radius:4px}
+
+/* ---------- bar ---------- */
+.bar{
+  position:sticky; top:0; z-index:50; height:62px; display:flex; align-items:center; gap:16px;
+  padding:0 clamp(18px,4vw,44px);
+  background:rgba(255,255,255,.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.mark{font-family:var(--disp); font-weight:700; font-size:16px; letter-spacing:-.02em; display:flex; align-items:center; gap:10px}
+.mark .sq{width:22px; height:22px; border-radius:7px; background:var(--teal); display:grid; place-items:center; color:#fff; font-size:11px; font-family:var(--mono)}
+.bar .spacer{flex:1}
+.chipnav{display:flex; gap:6px}
+.chipnav a{
+  font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--dim); text-decoration:none; padding:6px 10px; border-radius:99px;
+  transition:background .15s, color .15s;
+}
+.chipnav a:hover{background:var(--card-2); color:var(--ink)}
+.ring{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10px; color:var(--faint)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:0 clamp(18px,4vw,44px) 80px}
+
+/* ---------- hero ---------- */
+.hero{padding:56px 0 34px; display:grid; gap:26px; grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){ .hero{grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr); align-items:end} }
+h1{
+  font-family:var(--disp); font-weight:700; font-size:clamp(34px,5.2vw,56px);
+  line-height:1.03; letter-spacing:-.035em; margin:0 0 16px; text-wrap:balance;
+}
+h1 em{font-style:normal; color:var(--teal)}
+.sub{font-size:18px; color:var(--ink-2); max-width:52ch; margin:0}
+.stats{display:flex; gap:26px; margin-top:26px; flex-wrap:wrap}
+.stat .n{font-family:var(--disp); font-weight:700; font-size:26px; letter-spacing:-.03em; display:block; line-height:1.1}
+.stat .k{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint)}
+.resume{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:20px;
+  box-shadow:0 1px 2px rgba(18,22,27,.04), 0 14px 30px -18px rgba(18,22,27,.18);
+}
+.resume .lbl{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+.resume .t{font-family:var(--disp); font-weight:600; font-size:16px; margin:7px 0 12px; letter-spacing:-.01em}
+.bar-mini{height:6px; border-radius:99px; background:var(--card-2); overflow:hidden; margin-bottom:12px}
+.bar-mini i{display:block; height:100%; width:32%; background:var(--teal); border-radius:99px}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; font-family:var(--sans); font-weight:600; font-size:14px;
+  background:var(--ink); color:#fff; border:0; border-radius:10px; padding:10px 16px; cursor:pointer;
+  text-decoration:none; transition:transform .12s, background .15s;
+}
+.btn:hover{background:#000; transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--line-2)}
+.btn.ghost:hover{background:var(--card)}
+
+/* ---------- section head ---------- */
+.shead{display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin:44px 0 18px}
+.shead h2{font-family:var(--disp); font-weight:600; font-size:20px; letter-spacing:-.02em; margin:0}
+.shead span{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+
+/* ---------- lesson grid ---------- */
+.grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:18px 18px 16px;
+  text-decoration:none; color:var(--ink); display:flex; flex-direction:column; gap:10px;
+  transition:transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .16s, border-color .16s;
+  box-shadow:0 1px 2px rgba(18,22,27,.03);
+}
+.card:hover{transform:translateY(-3px); box-shadow:0 2px 4px rgba(18,22,27,.05), 0 18px 32px -20px rgba(18,22,27,.3); border-color:var(--line-2)}
+.card .top{display:flex; align-items:center; justify-content:space-between}
+.card .num{
+  font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.06em;
+  padding:4px 8px; border-radius:6px; background:var(--card-2); color:var(--dim);
+}
+.card .num.t{background:var(--teal-soft); color:var(--teal)}
+.card .num.b{background:var(--berry-soft); color:var(--berry)}
+.card .num.a{background:var(--amber-soft); color:var(--amber)}
+.card .num.g{background:var(--green-soft); color:var(--green)}
+.card h3{font-family:var(--disp); font-weight:600; font-size:16.5px; line-height:1.28; letter-spacing:-.015em; margin:0}
+.card p{font-size:13.5px; color:var(--dim); margin:0; line-height:1.55}
+.card .foot{margin-top:auto; display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); padding-top:6px}
+.card .foot .dot{width:3px; height:3px; border-radius:50%; background:var(--line-2)}
+.card.current{border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-soft)}
+
+/* ---------- lesson view mock ---------- */
+.frame{
+  background:var(--card); border:1px solid var(--line); border-radius:20px; overflow:hidden;
+  box-shadow:0 1px 2px rgba(18,22,27,.04), 0 24px 50px -32px rgba(18,22,27,.35);
+}
+.frame-bar{
+  display:flex; align-items:center; gap:10px; padding:11px 18px;
+  background:var(--card-2); border-bottom:1px solid var(--line);
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint);
+}
+.frame-bar b{color:var(--ink-2); font-weight:500}
+.frame-bar .spacer{flex:1}
+.frame-body{display:grid; grid-template-columns:minmax(0,1fr)}
+@media(min-width:880px){ .frame-body{grid-template-columns:88px minmax(0,1fr) minmax(0,330px)} }
+
+.rail{
+  display:none;
+}
+@media(min-width:880px){
+  .rail{display:block; border-right:1px solid var(--line); padding:26px 0; text-align:center; background:linear-gradient(180deg,var(--card-2),transparent)}
+  .rail .big{font-family:var(--disp); font-weight:700; font-size:34px; letter-spacing:-.04em; color:var(--teal); line-height:1}
+  .rail .lbl{font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-top:6px}
+  .rail .ticks{margin-top:22px; display:grid; gap:7px; justify-items:center}
+  .rail .ticks i{width:5px; height:5px; border-radius:50%; background:var(--line-2)}
+  .rail .ticks i.on{background:var(--teal); width:7px; height:7px}
+}
+.lesson{padding:26px clamp(18px,3vw,30px) 30px}
+.lesson .kicker{font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--berry); margin:0 0 12px}
+.lesson h2{font-family:var(--disp); font-weight:700; font-size:clamp(24px,3vw,31px); line-height:1.12; letter-spacing:-.028em; margin:0 0 14px}
+.lesson .lede{font-size:16px; color:var(--ink-2); margin:0 0 18px}
+.lesson p{font-size:15px; margin:0 0 14px}
+.lesson code{font-family:var(--mono); font-size:.82em; background:var(--card-2); border:1px solid var(--line); border-radius:4px; padding:1px 5px}
+.pull{
+  border-left:3px solid var(--amber); background:var(--amber-soft); border-radius:0 10px 10px 0;
+  padding:13px 15px; font-size:14.5px; color:#5c4306; margin:18px 0;
+}
+.pull b{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:4px}
+
+.side{padding:26px 22px; border-top:1px solid var(--line); background:var(--card-2)}
+@media(min-width:880px){ .side{border-top:0; border-left:1px solid var(--line)} }
+.side h4{font-family:var(--disp); font-weight:600; font-size:14.5px; margin:0 0 3px; letter-spacing:-.01em}
+.side .hint{font-size:12px; color:var(--dim); margin:0 0 16px}
+.sc{display:grid; gap:13px}
+.sc-item label{display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; font-weight:600; margin-bottom:3px}
+.sc-item label em{font-style:normal; font-family:var(--mono); font-size:10px; color:var(--faint)}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:16px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px; border-radius:99px; background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:14px; height:14px; margin-top:-5.5px; border-radius:50%; background:var(--teal); border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-track{height:3px; background:var(--line-2)}
+input[type=range]::-moz-range-thumb{width:12px; height:12px; border-radius:50%; background:var(--teal); border:2px solid #fff}
+.score{display:flex; align-items:baseline; gap:6px; margin:16px 0 6px}
+.score .big{font-family:var(--disp); font-weight:700; font-size:30px; letter-spacing:-.04em; line-height:1}
+.score .of{font-family:var(--mono); font-size:10px; color:var(--faint)}
+.side .v{font-size:12.5px; line-height:1.55; color:var(--ink-2); margin:0; min-height:58px}
+.side .v b{color:var(--ink)}
+
+.nextcard{
+  margin:0 18px 18px; padding:14px 16px; border:1px dashed var(--line-2); border-radius:12px;
+  display:flex; align-items:center; gap:14px; text-decoration:none; color:var(--ink);
+  transition:background .15s, border-color .15s;
+}
+.nextcard:hover{background:var(--card-2); border-color:var(--teal)}
+.nextcard .k{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); display:block; margin-bottom:2px}
+.nextcard .t{font-family:var(--disp); font-weight:600; font-size:14.5px; letter-spacing:-.01em}
+.nextcard .arrow{margin-left:auto; font-family:var(--mono); color:var(--teal)}
+
+footer{margin-top:52px; padding-top:22px; border-top:1px solid var(--line); color:var(--faint); font-size:13px}
+</style>
+</head>
+<body>
+<div class="badge">SAMPLE C · COURSE BOARD</div>
+
+<header class="bar">
+  <div class="mark"><span class="sq">H</span>Harness Engineering</div>
+  <div class="spacer"></div>
+  <nav class="chipnav">
+    <a href="#board">Lessons</a>
+    <a href="#lesson">Inside a lesson</a>
+    <a href="#">Labs</a>
+  </nav>
+  <div class="ring">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <circle cx="9" cy="9" r="7" fill="none" stroke="#e3e8ec" stroke-width="3"/>
+      <circle cx="9" cy="9" r="7" fill="none" stroke="#0b7285" stroke-width="3"
+              stroke-dasharray="44" stroke-dashoffset="30" stroke-linecap="round" transform="rotate(-90 9 9)"/>
+    </svg>
+    3 / 10
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>Eleven lessons that make an agent <em>reliable</em>.</h1>
+      <p class="sub">Harness engineering is the discipline of building the instructions, state, verification and feedback around a model. Pick a lesson, or start at the beginning.</p>
+      <div class="stats">
+        <div class="stat"><span class="n">11</span><span class="k">lessons</span></div>
+        <div class="stat"><span class="n">9</span><span class="k">labs</span></div>
+        <div class="stat"><span class="n">~2h</span><span class="k">total</span></div>
+      </div>
+    </div>
+    <div class="resume">
+      <div class="lbl">Pick up where you left off</div>
+      <div class="t">03 · If it isn't in the repo, it doesn't exist</div>
+      <div class="bar-mini"><i></i></div>
+      <a class="btn" href="#lesson">Continue →</a>
+    </div>
+  </section>
+
+  <section id="board">
+    <div class="shead"><h2>Lessons</h2><span>read in any order</span></div>
+    <div class="grid">
+      <a class="card" href="#">
+        <div class="top"><span class="num t">01</span></div>
+        <h3>Why capable agents fail</h3>
+        <p>The gap between benchmark scores and your repo — and the five ways sessions break.</p>
+        <div class="foot"><span>lab 01</span><span class="dot"></span><span>8 min</span></div>
+      </a>
+      <a class="card current" href="#lesson">
+        <div class="top"><span class="num b">02</span><span style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--teal)">CURRENT</span></div>
+        <h3>A prompt file is not a harness</h3>
+        <p>Five subsystems, and why the weakest one sets your reliability.</p>
+        <div class="foot"><span>lab 02</span><span class="dot"></span><span>10 min</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="top"><span class="num a">03</span></div>
+        <h3>The repo as source of truth</h3>
+        <p>If the agent can't read it in the repo, it doesn't exist. The fresh-session test.</p>
+        <div class="foot"><span>lab 03</span><span class="dot"></span><span>9 min</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="top"><span class="num g">04</span></div>
+        <h3>Instruction architecture</h3>
+        <p>Why a 600-line AGENTS.md hurts, and where to put the rule that matters.</p>
+        <div class="foot"><span>2 labs</span><span class="dot"></span><span>14 min</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="top"><span class="num t">05</span></div>
+        <h3>Continuity and init</h3>
+        <p>Three sessions, two harnesses — and where the minutes actually go.</p>
+        <div class="foot"><span>lab 05</span><span class="dot"></span><span>12 min</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="top"><span class="num b">06</span></div>
+        <h3>Scope and feature lists</h3>
+        <p>WIP = 1, attention as arithmetic, and a feature list that means something.</p>
+        <div class="foot"><span>2 labs</span><span class="dot"></span><span>15 min</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section id="lesson" style="scroll-margin-top:80px">
+    <div class="shead"><h2>Inside a lesson</h2><span>text + lab, side by side</span></div>
+    <div class="frame">
+      <div class="frame-bar">
+        <b>Lesson 02</b> · A prompt file is not a harness
+        <span class="spacer"></span>
+        <span>10 min · 1 lab</span>
+      </div>
+      <div class="frame-body">
+        <div class="rail">
+          <div class="big">02</div>
+          <div class="lbl">Lesson</div>
+          <div class="ticks"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="lesson">
+          <p class="kicker">Definition</p>
+          <h2>A prompt file is not a harness.</h2>
+          <p class="lede">People say "harness" and mean "the system prompt I wrote." That is one of five subsystems. The other four are where most reliability actually comes from.</p>
+          <p>A new engineer joins your project with no README, no comments, nobody to ask, and CI config buried somewhere. Smart people still struggle. An agent has it worse: it can only see the files you put in front of it and the commands it can run.</p>
+          <div class="pull">
+            <b>Key idea</b>
+            The repo is the spec. Anything the agent cannot see in the repository does not exist for it.
+          </div>
+          <p>Instructions, tools, environment, state and feedback. Score each one honestly — the lowest score is your ceiling, not the average.</p>
+        </div>
+
+        <div class="side">
+          <h4>Lab 02 · Score your harness</h4>
+          <p class="hint">0 = does not exist · 4 = solid and maintained</p>
+          <div class="sc" id="sc"></div>
+          <div class="score"><span class="big" id="big">10</span><span class="of">/ 20</span></div>
+          <p class="v" id="vd"></p>
+        </div>
+      </div>
+      <a class="nextcard" href="#">
+        <div><span class="k">Next lesson</span><span class="t">03 · The repo as source of truth</span></div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>Layout C · board index + focused lesson view with a numeral rail and an inline lab panel. Progress tracked per lesson.</footer>
+</div>
+
+<script>
+(function(){
+  var SUBS=[
+    {id:'i',n:'Instructions'},
+    {id:'t',n:'Tools'},
+    {id:'e',n:'Environment'},
+    {id:'s',n:'State'},
+    {id:'f',n:'Feedback'}
+  ];
+  var host=document.getElementById('sc');
+  host.innerHTML=SUBS.map(function(s){
+    return '<div class="sc-item"><label for="c-'+s.id+'"><span>'+s.n+'</span><em id="cv-'+s.id+'">2 / 4</em></label>'+
+      '<input type="range" id="c-'+s.id+'" min="0" max="4" step="1" value="2"></div>';
+  }).join('');
+  function upd(){
+    var tot=0,worst=null;
+    SUBS.forEach(function(s){
+      var v=+document.getElementById('c-'+s.id).value;
+      tot+=v; document.getElementById('cv-'+s.id).textContent=v+' / 4';
+      if(!worst||v<worst.v) worst={v:v,s:s};
+    });
+    document.getElementById('big').textContent=tot;
+    var vd=document.getElementById('vd');
+    if(tot===20) vd.innerHTML='<b>Fully harnessed.</b> Now audit — remove one subsystem at a time.';
+    else if(worst.v<=1) vd.innerHTML='<b>Bottleneck: '+worst.s.n.toLowerCase()+'.</b> Adding anything else is wasted until this is fixed.';
+    else if(worst.v===2) vd.innerHTML='<b>Weakest: '+worst.s.n.toLowerCase()+'.</b> Sessions mostly work, then fail without explanation.';
+    else vd.innerHTML='<b>Solid.</b> Weakest is '+worst.s.n.toLowerCase()+'. Next gain is sharper verification.';
+  }
+  host.addEventListener('input',upd); upd();
+})();
+</script>
+</body>
+</html>
